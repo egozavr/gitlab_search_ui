@@ -58,7 +58,7 @@ export class GitlabApiService {
     const req: (url?: string) => Observable<Project[]> = (url?: string) => {
       const src$ = !url
         ? this.http.get<Project[]>(`${this.getApiV4URL(config)}/projects`, {
-            params: { simple: 'true', membership: `${membership}`, per_page: '50', order_by: 'id', pagination: 'keyset' },
+            params: { simple: 'true', membership: `${membership}`, per_page: '100', order_by: 'id', pagination: 'keyset' },
             headers: this.getAuthHeader(config),
             observe: 'response',
           })
