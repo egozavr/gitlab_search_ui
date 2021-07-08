@@ -1,0 +1,11 @@
+<h2 mat-dialog-title>Available GitLab instances</h2>
+<mat-dialog-content>
+  <button mat-button (click)="addForm()"><mat-icon>add</mat-icon> Add GitLab</button>
+  <app-gitlab-config-item
+    *ngFor="let nothing of openedAddForms; let i = index"
+    [editMode]="true"
+    (cancelEdit)="removeForm(i)"
+  ></app-gitlab-config-item>
+  <app-gitlab-config-item *ngFor="let config of configs$ | async" [gitlabConfig]="config"></app-gitlab-config-item>
+</mat-dialog-content>
+<ng-template> </ng-template>

@@ -1,0 +1,32 @@
+<mat-toolbar color="primary" class="mat-elevation-z6">
+  <button mat-icon-button class="config-button" (click)="openConfigSettings()">
+    <mat-icon>settings</mat-icon>
+  </button>
+  <span>Gitlab Search</span>
+  <span class="spacer"></span>
+  <app-theme-toggle
+    [mode]="themeMode$ | async"
+    (toggleMode)="toggleThemeMode()"
+  ></app-theme-toggle>
+</mat-toolbar>
+<mat-sidenav-container>
+  <mat-sidenav mode="side" opened disableClose>
+    <app-search-form
+      [gitlabConfigs]="gitlabConfigs$ | async"
+      [gitlabItems]="gitlabItems$ | async"
+      [dataLoading]="gitladDataLoading$ | async"
+      (gitlabSelected)="updateGitlabData($event)"
+      (projectsSelected)="updateSelectedProjects($event)"
+    ></app-search-form>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <div class="query-form mat-elevation-z2 theme-background">
+      <app-query-form
+        [projectSelected]="projectSelected$ | async"
+        [resultLoading]="searchResultsLoading$ | async"
+        (query)="search($event)"
+      ></app-query-form>
+    </div>
+    <app-search-results [results]="searchResults$ | async"></app-search-results>
+  </mat-sidenav-content>
+</mat-sidenav-container>

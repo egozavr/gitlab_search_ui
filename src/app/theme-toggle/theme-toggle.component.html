@@ -1,0 +1,3 @@
+<mat-slide-toggle [checked]="mode === 'dark'" (change)="toggleMode.emit()">
+  <mat-icon>{{ mode === 'light' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+</mat-slide-toggle>

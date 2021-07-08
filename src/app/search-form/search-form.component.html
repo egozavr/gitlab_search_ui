@@ -1,0 +1,33 @@
+<mat-tree [dataSource]="dataSource" [treeControl]="treeControl" *ngIf="this.dataSource.data?.length > 0; else nogitlabs">
+  <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+    <button mat-icon-button disabled></button>
+    <ng-container *ngIf="getNodeDataLoading(node); else selectableNode">
+      <div class="loading-box">
+        <mat-spinner [diameter]="20"></mat-spinner>
+        {{ displayNode(node) }}
+      </div>
+    </ng-container>
+    <ng-template #selectableNode>
+      <mat-checkbox class="checklist-leaf-node" [checked]="nodeSelection.isSelected(node)" (change)="leafNodeSelectionToggle(node)">
+        {{ displayNode(node) }}
+      </mat-checkbox>
+    </ng-template>
+  </mat-tree-node>
+  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+    <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.item">
+      <mat-icon class="mat-icon-rtl-mirror">
+        {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
+      </mat-icon>
+    </button>
+    <mat-checkbox
+      [checked]="descendantsAllSelected(node)"
+      [indeterminate]="descendantsPartiallySelected(node)"
+      (change)="nodeSelectionToggle(node)"
+    >
+      {{ displayNode(node) }}
+    </mat-checkbox>
+  </mat-tree-node>
+</mat-tree>
+<ng-template #nogitlabs>
+  <p>No gitlabs configured yet</p>
+</ng-template>

@@ -1,0 +1,16 @@
+<form [formGroup]="queryForm" (ngSubmit)="submit()">
+  <div class="query-section">
+    <mat-form-field>
+      <mat-label>Search query</mat-label>
+      <input matInput formControlName="query" required />
+      <mat-error *ngIf="queryForm.get('query').hasError('minlength')">Please enter at least 3 characters</mat-error>
+    </mat-form-field>
+    <mat-error *ngIf="!projectSelected">Please select at least one GitLab project</mat-error>
+  </div>
+  <div>
+    <button mat-raised-button color="primary" [disabled]="!projectSelected || queryForm.pristine || queryForm.invalid || resultLoading">
+      <mat-icon>search</mat-icon>&nbsp;Search
+    </button>
+  </div>
+</form>
+<mat-progress-bar mode="indeterminate" *ngIf="resultLoading"></mat-progress-bar>

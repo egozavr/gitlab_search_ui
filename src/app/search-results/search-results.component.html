@@ -1,0 +1,7 @@
+<div *ngFor="let result of results" class="result-item">
+  <h3>{{ result.gitlabURL }} {{ result.projectName }}</h3>
+  <a [attr.href]="getURL(result)" target="_blank">{{ result.path }}</a>
+  <code>
+    <pre>{{ result.data }}</pre>
+  </code>
+</div>

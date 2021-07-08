@@ -1,0 +1,17 @@
+:host {
+  display: flex;
+  flex-flow: column nowrap;
+  padding: 20px;
+  gap: 20px;
+  min-width: 480px;
+}
+
+
+.loading-box {
+  display: flex;
+  height: 24px;
+  align-items: center;
+  .mat-spinner {
+    margin-right: 4px;
+  }
+}

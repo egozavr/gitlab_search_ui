@@ -1,0 +1,28 @@
+<div class="item" *ngIf="gitlabConfig && !editMode">
+  <span>{{ gitlabConfig.gitlabURL }}</span>
+  <span class="spacer"></span>
+  <button mat-icon-button (click)="changeMode(true)">
+    <mat-icon>edit</mat-icon>
+  </button>
+  <button mat-icon-button color="warn" (click)="delete()">
+    <mat-icon>delete</mat-icon>
+  </button>
+</div>
+<form [formGroup]="configForm" *ngIf="editMode" (ngSubmit)="save()">
+  <mat-form-field class="url">
+    <mat-label>URL</mat-label>
+    <input formControlName="gitlabURL" matInput />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Token</mat-label>
+    <input formControlName="token" matInput />
+  </mat-form-field>
+  <mat-checkbox formControlName="ignoreSSL">Ignore SSL</mat-checkbox>
+  <span class="spacer"></span>
+  <button type="submit" mat-icon-button>
+    <mat-icon>save</mat-icon>
+  </button>
+  <button type="button" mat-icon-button (click)="changeMode(false)">
+    <mat-icon>cancel</mat-icon>
+  </button>
+</form>

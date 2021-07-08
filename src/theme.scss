@@ -1,0 +1,64 @@
+@use '~@angular/material' as mat;
+@use 'sass:map';
+
+@mixin custom-styles-theme($theme) {
+  $color-config: mat.get-color-config($theme);
+  $primary: map.get($color-config, primary);
+  $accent: map.get($color-config, accent);
+  $foreground: map.get($theme, foreground);
+  $background: map.get($theme, background);
+  a:link {
+    color: mat.get-color-from-palette($accent, 500);
+  }
+  a:visited {
+    color: map.get($foreground, secondary-text);
+  }
+  a:hover {
+    color: mat.get-color-from-palette($accent, A400);
+  }
+  a:active {
+    color: mat.get-color-from-palette($accent, A700);
+  }
+  .theme-background {
+    background-color: map.get($background, card);
+  }
+}
+
+$app-light-primary: mat.define-palette(mat.$teal-palette, 500);
+$app-light-accent: mat.define-palette(mat.$indigo-palette, A200, A100, A400);
+$app-light-warn: mat.define-palette(mat.$red-palette);
+
+$app-light-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: $app-light-primary,
+      accent: $app-light-accent,
+      warn: $app-light-warn,
+    ),
+    typography: mat.define-typography-config(),
+    density: 0,
+  )
+);
+
+@include mat.core($app-light-theme);
+@include mat.all-component-themes($app-light-theme);
+@include custom-styles-theme($app-light-theme);
+
+.dark-theme {
+  $app-dark-primary: mat.define-palette(mat.$blue-grey-palette);
+  $app-dark-accent: mat.define-palette(mat.$amber-palette, A200, A100, A400);
+  $app-dark-warn: mat.define-palette(mat.$deep-orange-palette);
+
+  $app-dark-theme: mat.define-dark-theme(
+    (
+      color: (
+        primary: $app-dark-primary,
+        accent: $app-dark-accent,
+        warn: $app-dark-warn,
+      ),
+    )
+  );
+
+  @include mat.all-component-themes($app-dark-theme);
+  @include custom-styles-theme($app-dark-theme);
+}

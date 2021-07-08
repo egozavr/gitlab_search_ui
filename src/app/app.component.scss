@@ -1,0 +1,27 @@
+:host {
+  display: flex;
+  flex-flow: column nowrap;
+  height: 100vh;
+}
+.mat-toolbar {
+  z-index: 10;
+  .config-button {
+    margin-right: 20px;
+  }
+}
+.mat-sidenav-container {
+  flex: 1;
+  .mat-sidenav {
+    .mat-raised-button {
+      display: block;
+      width: calc(100% - 40px);
+      margin: auto;
+    }
+  }
+  .query-form {
+    z-index: 5;
+    position: sticky;
+    top: 0px;
+    left: 0px;
+  }
+}
