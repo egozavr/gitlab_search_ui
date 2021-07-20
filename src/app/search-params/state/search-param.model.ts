@@ -1,15 +1,3 @@
-export interface Group {
-  id: number;
-  web_url: string;
-  name: string;
-  path: string;
-  description: string;
-  full_name: string;
-  full_path: string;
-  created_at: string; // TODO: try Date
-  parent_id: number | null;
-}
-
 export interface Namespace {
   id: number;
   name: string;
@@ -38,7 +26,6 @@ export interface Project {
 
 export interface GitlabData {
   id: string;
-  groups: Group[];
   projects: Project[];
 }
 
@@ -47,17 +34,17 @@ export interface GitlabProject extends Project {
   type: 'project';
 }
 
-export interface GitlabGroup extends Group {
+export interface GitlabNamespace extends Namespace {
   gitlab_id: string;
-  type: 'group';
+  type: 'namespace';
 }
 
 export function isGitlabProject(v: any): v is GitlabProject {
   return v !== null && typeof (v === 'object') && v.gitlab_id && v.type === 'project';
 }
 
-export function isGitlabGroup(v: any): v is GitlabGroup {
-  return v !== null && typeof (v === 'object') && v.gitlab_id && v.type === 'group';
+export function isGitlabNamespace(v: any): v is GitlabNamespace {
+  return v !== null && typeof (v === 'object') && v.gitlab_id && v.type === 'namespace';
 }
 
 export interface SearchProject {

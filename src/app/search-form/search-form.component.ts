@@ -12,21 +12,22 @@ import {
 } from "@angular/material/tree";
 import {
   GitlabData,
-  GitlabGroup,
+  GitlabNamespace,
   GitlabProject,
-  isGitlabGroup,
+  isGitlabNamespace,
   isGitlabProject,
+  Namespace,
 } from "../search-params/state/search-param.model";
 import { GitlabConfig } from "../state/gitlab-config.model";
 import { SelectionModelTrackBy } from "./selection-model-track-by.class";
 
 export class GitlabEntityNode {
   children: GitlabEntityNode[];
-  item: string | GitlabGroup | GitlabProject;
+  item: string | GitlabNamespace | GitlabProject;
 }
 
 export class GitlabEntityFlatNode {
-  item: string | GitlabGroup | GitlabProject;
+  item: string | GitlabNamespace | GitlabProject;
   level: number;
   expandable: boolean;
 }
@@ -69,8 +70,8 @@ export class SearchFormComponent {
       if (typeof node.item === "string") {
         return node.item;
       }
-      if (isGitlabGroup(node.item)) {
-        return `${node.item.gitlab_id}_group_${node.item.id}`;
+      if (isGitlabNamespace(node.item)) {
+        return `${node.item.gitlab_id}_ns_${node.item.id}`;
       }
       if (isGitlabProject(node.item)) {
         return `${node.item.gitlab_id}_project_${node.item.id}`;
@@ -102,43 +103,40 @@ export class SearchFormComponent {
   private getTreeNodes(datas: GitlabData[]): GitlabEntityNode[] {
     const nodes: GitlabEntityNode[] = [];
     (datas || []).forEach((data) => {
-      const projectsByGroup = new Map<number, GitlabProject[]>();
+      const projectsByNS = new Map<number, GitlabProject[]>();
+      const nsByID = new Map<number, Namespace>();
       (data.projects || []).forEach((project) => {
-        const groupID = project.namespace.id;
-        if (!projectsByGroup.has(groupID)) {
-          projectsByGroup.set(groupID, [
+        const nsID = project.namespace.id;
+        if (!projectsByNS.has(nsID)) {
+          projectsByNS.set(nsID, [
             { ...project, gitlab_id: data.id, type: "project" },
           ]);
         } else {
-          projectsByGroup
-            .get(groupID)
+          projectsByNS
+            .get(nsID)
             .push({ ...project, gitlab_id: data.id, type: "project" });
         }
-      });
-      const groupIDs = new Set<number>((data.groups || []).map((g) => g.id));
-      const projectsNotInGroups: GitlabProject[] = [];
-      for (const groupID of projectsByGroup.keys()) {
-        if (!groupIDs.has(groupID)) {
-          projectsNotInGroups.push(...projectsByGroup.get(groupID));
+        if (!nsByID.has(nsID)) {
+          nsByID.set(nsID, { ...project.namespace });
         }
-      }
-      const gitlabChildren: GitlabEntityNode[] = (data.groups || []).map(
-        (group) => {
-          const groupProjects = projectsByGroup.get(group.id) || [];
-          groupProjects.sort((p1, p2) =>
+      });
+      const namespaces = Array.from(nsByID.values()).sort((ns1, ns2) =>
+        ns1.name > ns2.name ? 1 : ns1.name < ns2.name ? -1 : 0
+      );
+      const gitlabChildren: GitlabEntityNode[] = (namespaces || []).map(
+        (ns) => {
+          const nsProjects = projectsByNS.get(ns.id) || [];
+          nsProjects.sort((p1, p2) =>
             p1.name > p2.name ? 1 : p1.name < p2.name ? -1 : 0
           );
           return {
-            item: { ...group, gitlab_id: data.id, type: "group" },
-            children: groupProjects.map((project) => ({
+            item: { ...ns, gitlab_id: data.id, type: "namespace" },
+            children: nsProjects.map((project) => ({
               item: project,
               children: [],
             })),
           };
         }
-      );
-      gitlabChildren.concat(
-        projectsNotInGroups.map((project) => ({ item: project, children: [] }))
       );
       nodes.push({
         item: data.id,
@@ -272,7 +270,7 @@ export class SearchFormComponent {
     if (typeof node.item === "string") {
       return this.gitlabUrlByID[node.item];
     }
-    if (isGitlabGroup(node.item) || isGitlabProject(node.item)) {
+    if (isGitlabNamespace(node.item) || isGitlabProject(node.item)) {
       return node.item.name;
     }
     return "";
