@@ -4,10 +4,7 @@
   </button>
   <span>Gitlab Search</span>
   <span class="spacer"></span>
-  <app-theme-toggle
-    [mode]="themeMode$ | async"
-    (toggleMode)="toggleThemeMode()"
-  ></app-theme-toggle>
+  <app-theme-toggle [mode]="themeMode$ | async" (toggleMode)="toggleThemeMode()"></app-theme-toggle>
 </mat-toolbar>
 <mat-sidenav-container>
   <mat-sidenav mode="side" opened disableClose>

@@ -4,7 +4,7 @@
  * Key difference between stogage data structures:
  * cdk SelectionModel _selection is Set<T>, SelectionModelTrackBy _selection is Map<K, T>.
  */
-export class SelectionModelTrackBy<T, K = any> {
+export class SelectionModelTrackBy<T, K = T> {
   private _selection = new Map<K, T>();
   private _selected: T[] | null;
   get selected(): T[] {

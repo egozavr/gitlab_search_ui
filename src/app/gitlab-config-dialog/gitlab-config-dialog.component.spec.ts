@@ -8,9 +8,8 @@ describe('GitlabConfigDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ GitlabConfigDialogComponent ]
-    })
-    .compileComponents();
+      declarations: [GitlabConfigDialogComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {
