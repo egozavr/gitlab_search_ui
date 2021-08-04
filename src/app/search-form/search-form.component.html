@@ -1,3 +1,12 @@
+<mat-form-field>
+  <input matInput [formControl]="filterCtrl" />
+  <mat-label>Filter items</mat-label>
+  <mat-icon matPrefix>filter_alt</mat-icon>
+  <button mat-icon-button matSuffix *ngIf="filterCtrl.value" (click)="filterCtrl.reset()">
+    <mat-icon>close</mat-icon>
+  </button>
+  <mat-error *ngIf="filterCtrl.hasError('minlength')">Enter at least 3 characters</mat-error>
+</mat-form-field>
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" *ngIf="this.dataSource.data?.length > 0; else nogitlabs">
   <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
     <button mat-icon-button disabled></button>

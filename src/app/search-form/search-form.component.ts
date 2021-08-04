@@ -1,14 +1,17 @@
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
+import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, map, startWith, takeUntil, tap } from 'rxjs/operators';
 import {
   GitlabData,
   GitlabNamespace,
   GitlabProject,
   isGitlabNamespace,
   isGitlabProject,
-  Namespace,
+  Namespace
 } from '../search-params/state/search-param.model';
 import { GitlabConfig } from '../state/gitlab-config.model';
 import { SelectionModelTrackBy } from './selection-model-track-by.class';
@@ -30,11 +33,13 @@ export class GitlabEntityFlatNode {
   styleUrls: ['./search-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SearchFormComponent {
+export class SearchFormComponent implements OnInit, OnDestroy {
+  private data$ = new BehaviorSubject<GitlabData[]>([]);
+  private filteredData$: Observable<[GitlabData[], string]>;
+  private destroy$ = new Subject<void>();
+
   @Input() set gitlabItems(items: GitlabData[]) {
-    this.dataSource.data = this.getTreeNodes(items);
-    this.updateNodeSelection(this.treeControl.dataNodes.filter(node => node.level === 0));
-    this.projectsSelected.emit(this.getSelectedProjects());
+    this.data$.next(items);
   }
 
   @Input() dataLoading: { [gitlabID: string]: boolean };
@@ -70,10 +75,35 @@ export class SearchFormComponent {
   @Output() gitlabSelected = new EventEmitter<string>();
   @Output() projectsSelected = new EventEmitter<GitlabProject[]>();
 
+  filterCtrl = new FormControl('', Validators.minLength(3));
+
   constructor() {
     this.treeFlattener = new MatTreeFlattener(this.transformer, this.getLevel, this.isExpandable, this.getChildren);
     this.treeControl = new FlatTreeControl<GitlabEntityFlatNode>(this.getLevel, this.isExpandable);
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+  }
+
+  ngOnInit(): void {
+    const queries$ = this.filterCtrl.valueChanges.pipe(
+      filter(() => this.filterCtrl.valid),
+      startWith(''),
+      debounceTime(200),
+      distinctUntilChanged(),
+      tap(() => {
+        this.nodeSelection.clear();
+      })
+    );
+    this.filteredData$ = combineLatest([this.data$, queries$]).pipe(map(this.filterData));
+    this.filteredData$.pipe(takeUntil(this.destroy$)).subscribe(([data, query]) => {
+      this.dataSource.data = this.getTreeNodes(data);
+      const rootNodes = this.treeControl.dataNodes.filter(node => node.level === 0);
+      if (query !== '') {
+        this.nodeSelection.select(...rootNodes.filter(node => node.expandable));
+        this.treeControl.expandAll();
+      }
+      this.updateNodeSelection(this.treeControl.dataNodes.filter(node => node.level === 0));
+      this.projectsSelected.emit(this.getSelectedProjects());
+    });
   }
 
   private getTreeNodes(datas: GitlabData[]): GitlabEntityNode[] {
@@ -248,5 +278,21 @@ export class SearchFormComponent {
 
   private getSelectedProjects(): GitlabProject[] {
     return this.nodeSelection.selected.map(node => node.item).filter(item => isGitlabProject(item)) as GitlabProject[];
+  }
+
+  private filterData([datas, query]: [GitlabData[], string]): [GitlabData[], string] {
+    query = (query || '').trim().toLowerCase();
+    return [
+      datas.map(data => ({
+        id: data.id,
+        projects: data.projects.filter(project => project.name_with_namespace.toLowerCase().includes(query)),
+      })),
+      query,
+    ];
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
