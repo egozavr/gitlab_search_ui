@@ -40,25 +40,25 @@ $app-light-theme: mat.define-light-theme(
   )
 );
 
+$app-dark-primary: mat.define-palette(mat.$blue-grey-palette);
+$app-dark-accent: mat.define-palette(mat.$amber-palette, A200, A100, A400);
+$app-dark-warn: mat.define-palette(mat.$deep-orange-palette);
+
+$app-dark-theme: mat.define-dark-theme(
+  (
+    color: (
+      primary: $app-dark-primary,
+      accent: $app-dark-accent,
+      warn: $app-dark-warn,
+    ),
+  )
+);
+
 @include mat.core($app-light-theme);
 @include mat.all-component-themes($app-light-theme);
 @include custom-styles-theme($app-light-theme);
 
 .dark-theme {
-  $app-dark-primary: mat.define-palette(mat.$blue-grey-palette);
-  $app-dark-accent: mat.define-palette(mat.$amber-palette, A200, A100, A400);
-  $app-dark-warn: mat.define-palette(mat.$deep-orange-palette);
-
-  $app-dark-theme: mat.define-dark-theme(
-    (
-      color: (
-        primary: $app-dark-primary,
-        accent: $app-dark-accent,
-        warn: $app-dark-warn,
-      ),
-    )
-  );
-
-  @include mat.all-component-themes($app-dark-theme);
+  @include mat.all-component-colors($app-dark-theme);
   @include custom-styles-theme($app-dark-theme);
 }
