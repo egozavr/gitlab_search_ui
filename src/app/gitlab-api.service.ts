@@ -47,13 +47,21 @@ export class GitlabApiService {
   }
 
   getAllProjects(config: GitlabConfig, membership = true): Observable<Project[]> {
+    const ver = this.parseVersion(config.version);
+    if (ver === null || (ver.major < 13 && ver.minor < 1)) {
+      return this.getAllProjectsWithOffsetPagination(config, membership);
+    }
+    return this.getAllProjectsWithKeysetPagination(config, membership);
+  }
+
+  getAllProjectsWithKeysetPagination(config: GitlabConfig, membership = true): Observable<Project[]> {
     const req: (url?: string) => Observable<Project[]> = (url?: string) => {
       const src$ = !url
         ? this.http.get<Project[]>(`${this.getApiV4URL(config)}/projects`, {
             params: {
               simple: 'true',
               membership: `${membership}`,
-              per_page: '100',
+              per_page: '50',
               order_by: 'id',
               pagination: 'keyset',
             },
@@ -80,6 +88,33 @@ export class GitlabApiService {
     return req();
   }
 
+  getAllProjectsWithOffsetPagination(config: GitlabConfig, membership = true): Observable<Project[]> {
+    const req: (page: number) => Observable<Project[]> = (page: number) => {
+      const src$ = this.http.get<Project[]>(`${this.getApiV4URL(config)}/projects`, {
+        params: {
+          simple: 'true',
+          membership: `${membership}`,
+          per_page: '50',
+          page: `${page}`,
+          order_by: 'id',
+        },
+        headers: this.getAuthHeader(config),
+        observe: 'response',
+      });
+      return src$.pipe(
+        mergeMap(resp => {
+          const projects = resp.body;
+          const totalPages = parseInt(resp.headers.get('x-total-pages'), 10);
+          if (!totalPages || page === totalPages) {
+            return of(projects);
+          }
+          return req(page + 1).pipe(map(data => data.concat(projects)));
+        })
+      );
+    };
+    return req(1);
+  }
+
   private getApiV4URL(config: Omit<GitlabConfig, 'id'>): string {
     return `${config.gitlabURL}/api/v4`;
   }
@@ -95,5 +130,21 @@ export class GitlabApiService {
     const linkRe = /<(.*)>; rel="(\w*)"/;
     const match = linkHeader.match(linkRe);
     return match ? match[1] : null;
+  }
+
+  private parseVersion(version: GitlabVersion): { major: number; minor: number; patch: number } | null {
+    const re = /^(\d+)\.(\d+)\.(\d+)/;
+    if (!version?.version) {
+      return null;
+    }
+    const match = version.version.match(re);
+    if (!match || !match.groups) {
+      return null;
+    }
+    return {
+      major: parseInt(match.groups[0], 10),
+      minor: parseInt(match.groups[1], 10),
+      patch: parseInt(match.groups[2], 10),
+    };
   }
 }
