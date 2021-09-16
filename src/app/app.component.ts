@@ -64,6 +64,7 @@ export class AppComponent implements OnInit, OnDestroy {
           this.openConfigSettings();
         }
       });
+    this.configSrv.updateVersions();
   }
 
   search(query: string): void {
