@@ -4,7 +4,7 @@ import { Observable, of } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { Project } from './search-params/state/search-param.model';
 import { RichSearchResult, SearchResultRaw } from './search-result/state/search-result.model';
-import { GitlabConfig } from './state/gitlab-config.model';
+import { GitlabConfig, GitlabVersion } from './state/gitlab-config.model';
 
 export interface WithNext<T> {
   nextURL?: string;
@@ -16,6 +16,12 @@ export interface WithNext<T> {
 })
 export class GitlabApiService {
   constructor(private http: HttpClient) {}
+
+  getVersion(config: Omit<GitlabConfig, 'id'>): Observable<GitlabVersion> {
+    return this.http.get<GitlabVersion>(`${this.getApiV4URL(config)}/version`, {
+      headers: this.getAuthHeader(config),
+    });
+  }
 
   getProjects(config: GitlabConfig, membership = true): Observable<Project[]> {
     return this.http.get<Project[]>(`${this.getApiV4URL(config)}/projects`, {
@@ -62,7 +68,8 @@ export class GitlabApiService {
       return src$.pipe(
         mergeMap(resp => {
           const projects = resp.body;
-          const nextLink = this.parseLink(resp.headers.get('Link'));
+          const linkHeader = resp.headers.get('Link') || resp.headers.get('Links');
+          const nextLink = this.parseLink(linkHeader);
           if (nextLink === null) {
             return of(projects);
           }
@@ -73,11 +80,11 @@ export class GitlabApiService {
     return req();
   }
 
-  private getApiV4URL(config: GitlabConfig): string {
+  private getApiV4URL(config: Omit<GitlabConfig, 'id'>): string {
     return `${config.gitlabURL}/api/v4`;
   }
 
-  private getAuthHeader(config: GitlabConfig): { [header: string]: string } {
+  private getAuthHeader(config: Omit<GitlabConfig, 'id'>): { [header: string]: string } {
     return { 'Private-Token': config.token };
   }
 
