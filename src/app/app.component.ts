@@ -30,6 +30,7 @@ export class AppComponent implements OnInit, OnDestroy {
   searchResultsLoading$: Observable<boolean>;
   projectSelected$: Observable<boolean>;
   themeMode$: Observable<ThemeMode>;
+  withArchived$: Observable<boolean>;
 
   @HostBinding('class.dark-theme') darkStyleClass: boolean;
   private destroy$ = new Subject<void>();
@@ -50,6 +51,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.searchResultsLoading$ = this.searchResultsQuery.selectLoading();
     this.projectSelected$ = this.searchParamsQuery.projectSelected();
     this.themeMode$ = this.configQuery.selectThemeMode();
+    this.withArchived$ = this.configQuery.selectWithArchivedFilter();
   }
 
   ngOnInit(): void {
@@ -81,7 +83,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   openConfigSettings(): void {
     this.dialog.open(GitlabConfigDialogComponent, {
-      minWidth: 640,
+      minWidth: 548,
       autoFocus: false,
       panelClass: this.darkStyleClass ? 'dark-theme' : '',
     });
@@ -89,6 +91,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
   toggleThemeMode(): void {
     this.configSrv.toggleThemeMode();
+  }
+
+  onWithArchivedChange(ev: boolean): void {
+    this.configSrv.setFilter({ withArchivedProjects: ev });
+    for (const gitlabID of this.searchParamsQuery.getSelectedGitLabs()) {
+      this.searchParamsSrv.updateGitlabData(gitlabID, true);
+    }
   }
 
   ngOnDestroy(): void {

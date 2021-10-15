@@ -7,6 +7,5 @@ export interface GitlabConfig {
   id: string;
   gitlabURL: string;
   token: string;
-  ignoreSSL: boolean;
   version: GitlabVersion | null;
 }

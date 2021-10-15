@@ -5,7 +5,7 @@ import { catchError, takeUntil } from 'rxjs/operators';
 import { GitlabApiService } from '../gitlab-api.service';
 import { GitlabConfig } from './gitlab-config.model';
 import { GitlabConfigQuery } from './gitlab-config.query';
-import { GitlabConfigStore, ThemeMode } from './gitlab-config.store';
+import { GitlabConfigStore, StoredFilter, ThemeMode } from './gitlab-config.store';
 
 @Injectable({ providedIn: 'root' })
 export class GitlabConfigService implements OnDestroy {
@@ -39,6 +39,11 @@ export class GitlabConfigService implements OnDestroy {
     const currentMode = this.store.getValue().ui.themeMode;
     const newMode: ThemeMode = currentMode === 'light' ? 'dark' : 'light';
     this.store.update(state => ({ ...state, ui: { ...state.ui, themeMode: newMode } }));
+  }
+
+  setFilter(filter: Partial<StoredFilter>): void {
+    const currentFilter = this.store.getValue().filter;
+    this.store.update(state => ({ ...state, filter: { ...currentFilter, ...filter } }));
   }
 
   updateVersions(): void {

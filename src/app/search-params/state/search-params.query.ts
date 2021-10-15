@@ -17,6 +17,10 @@ export class SearchParamsQuery extends QueryEntity<SearchParamsState> {
     return this.select(state => state.searchProjects).pipe(map(projects => projects.length > 0));
   }
 
+  getSelectedGitLabs(): string[] {
+    return Array.from(new Set(this.getValue().searchProjects.map(p => p.gitlab_id)));
+  }
+
   dataLoading(): Observable<{ [gitlabID: string]: boolean }> {
     return this.ui.selectAll({ asObject: true }).pipe(
       map(uiState => {

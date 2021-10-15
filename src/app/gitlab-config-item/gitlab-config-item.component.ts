@@ -21,7 +21,6 @@ export class GitlabConfigItemComponent implements OnInit {
     this.configForm = new FormGroup({
       gitlabURL: new FormControl(),
       token: new FormControl(),
-      ignoreSSL: new FormControl(false),
     });
   }
 
@@ -31,7 +30,6 @@ export class GitlabConfigItemComponent implements OnInit {
         this.configForm.setValue({
           gitlabURL: this.gitlabConfig.gitlabURL,
           token: this.gitlabConfig.token,
-          ignoreSSL: this.gitlabConfig.ignoreSSL,
         });
       }
       this.editMode = true;

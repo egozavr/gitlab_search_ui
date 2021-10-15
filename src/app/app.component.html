@@ -12,8 +12,10 @@
       [gitlabConfigs]="gitlabConfigs$ | async"
       [gitlabItems]="gitlabItems$ | async"
       [dataLoading]="gitladDataLoading$ | async"
+      [withArchived]="withArchived$ | async"
       (gitlabSelected)="updateGitlabData($event)"
       (projectsSelected)="updateSelectedProjects($event)"
+      (withArchivedChange)="onWithArchivedChange($event)"
     ></app-search-form>
   </mat-sidenav>
   <mat-sidenav-content>
