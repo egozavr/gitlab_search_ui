@@ -12,4 +12,8 @@ export class GitlabConfigQuery extends QueryEntity<GitlabConfigState> {
   selectThemeMode(): Observable<ThemeMode> {
     return this.select(state => state.ui.themeMode);
   }
+
+  selectWithArchivedFilter(): Observable<boolean> {
+    return this.select(state => state.filter.withArchivedProjects);
+  }
 }

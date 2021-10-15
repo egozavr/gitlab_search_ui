@@ -11,7 +11,7 @@ import {
   GitlabProject,
   isGitlabNamespace,
   isGitlabProject,
-  Namespace
+  Namespace,
 } from '../search-params/state/search-param.model';
 import { GitlabConfig } from '../state/gitlab-config.model';
 import { SelectionModelTrackBy } from './selection-model-track-by.class';
@@ -52,6 +52,8 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     });
   }
 
+  @Input() withArchived: boolean;
+
   flatNodeMap = new Map<GitlabEntityFlatNode, GitlabEntityNode>();
   nestedNodeMap = new Map<GitlabEntityNode, GitlabEntityFlatNode>();
   selectedParent: GitlabEntityFlatNode | null = null;
@@ -74,6 +76,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
   @Output() gitlabSelected = new EventEmitter<string>();
   @Output() projectsSelected = new EventEmitter<GitlabProject[]>();
+  @Output() withArchivedChange = new EventEmitter<boolean>();
 
   filterCtrl = new FormControl('', Validators.minLength(3));
 
