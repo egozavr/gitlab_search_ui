@@ -95,6 +95,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   onWithArchivedChange(ev: boolean): void {
     this.configSrv.setFilter({ withArchivedProjects: ev });
+    for (const gitlabID of this.searchParamsQuery.getSelectedGitLabs()) {
+      this.searchParamsSrv.updateGitlabData(gitlabID, true);
+    }
   }
 
   ngOnDestroy(): void {

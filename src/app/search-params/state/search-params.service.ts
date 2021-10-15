@@ -39,14 +39,15 @@ export class SearchParamsService implements OnDestroy {
       });
   }
 
-  updateGitlabData(gitlabID: string): void {
+  updateGitlabData(gitlabID: string, forceUpdate = false): void {
     const data = this.searchParamsQuery.getEntity(gitlabID);
-    if (!data || !data?.projects?.length || !this.searchParamsQuery.getHasCache()) {
+    if (forceUpdate || !data || !data?.projects?.length || !this.searchParamsQuery.getHasCache()) {
       this.searchParamsStore.ui.update(gitlabID, state => ({
         ...state,
         isLoading: true,
       }));
-      this.getGitlabData(gitlabID)
+      const withArchivedProjects = this.configQuery.getValue().filter.withArchivedProjects;
+      this.getGitlabData(gitlabID, withArchivedProjects)
         .pipe(
           tap(loadedData => {
             applyTransaction(() => {
@@ -78,12 +79,12 @@ export class SearchParamsService implements OnDestroy {
     this.destroy$.complete();
   }
 
-  private getGitlabData(gitlabID: string): Observable<GitlabData> {
+  private getGitlabData(gitlabID: string, withArchivedProjects: boolean): Observable<GitlabData> {
     const config = this.configQuery.getEntity(gitlabID);
     if (!config) {
       return throwError(`no such gitlab in config: ${gitlabID}`);
     }
-    return this.gitlabApi.getAllProjects(config).pipe(
+    return this.gitlabApi.getAllProjects(config, { archived: withArchivedProjects }).pipe(
       map(projects => ({
         id: gitlabID,
         projects,

@@ -11,6 +11,15 @@ export interface WithNext<T> {
   data: T;
 }
 
+export interface ProjectRequestOptions {
+  membership?: boolean;
+  archived?: boolean;
+}
+
+const defaultProjReqOpts: ProjectRequestOptions = {
+  membership: true,
+};
+
 @Injectable({
   providedIn: 'root',
 })
@@ -23,9 +32,9 @@ export class GitlabApiService {
     });
   }
 
-  getProjects(config: GitlabConfig, membership = true): Observable<Project[]> {
+  getProjects(config: GitlabConfig, opts: ProjectRequestOptions): Observable<Project[]> {
     return this.http.get<Project[]>(`${this.getApiV4URL(config)}/projects`, {
-      params: { simple: 'true', membership: `${membership}` },
+      params: { simple: 'true', ...this.getProjOptions(opts) },
       headers: this.getAuthHeader(config),
     });
   }
@@ -46,24 +55,24 @@ export class GitlabApiService {
       );
   }
 
-  getAllProjects(config: GitlabConfig, membership = true): Observable<Project[]> {
+  getAllProjects(config: GitlabConfig, opts?: ProjectRequestOptions): Observable<Project[]> {
     const ver = this.parseVersion(config.version);
     if (ver === null || (ver.major < 13 && ver.minor < 1)) {
-      return this.getAllProjectsWithOffsetPagination(config, membership);
+      return this.getAllProjectsWithOffsetPagination(config, opts);
     }
-    return this.getAllProjectsWithKeysetPagination(config, membership);
+    return this.getAllProjectsWithKeysetPagination(config, opts);
   }
 
-  getAllProjectsWithKeysetPagination(config: GitlabConfig, membership = true): Observable<Project[]> {
+  getAllProjectsWithKeysetPagination(config: GitlabConfig, opts?: ProjectRequestOptions): Observable<Project[]> {
     const req: (url?: string) => Observable<Project[]> = (url?: string) => {
       const src$ = !url
         ? this.http.get<Project[]>(`${this.getApiV4URL(config)}/projects`, {
             params: {
               simple: 'true',
-              membership: `${membership}`,
               per_page: '50',
               order_by: 'id',
               pagination: 'keyset',
+              ...this.getProjOptions(opts),
             },
             headers: this.getAuthHeader(config),
             observe: 'response',
@@ -88,15 +97,15 @@ export class GitlabApiService {
     return req();
   }
 
-  getAllProjectsWithOffsetPagination(config: GitlabConfig, membership = true): Observable<Project[]> {
+  getAllProjectsWithOffsetPagination(config: GitlabConfig, opts?: ProjectRequestOptions): Observable<Project[]> {
     const req: (page: number) => Observable<Project[]> = (page: number) => {
       const src$ = this.http.get<Project[]>(`${this.getApiV4URL(config)}/projects`, {
         params: {
           simple: 'true',
-          membership: `${membership}`,
           per_page: '50',
           page: `${page}`,
           order_by: 'id',
+          ...this.getProjOptions(opts),
         },
         headers: this.getAuthHeader(config),
         observe: 'response',
@@ -146,5 +155,16 @@ export class GitlabApiService {
       minor: parseInt(match.groups[1], 10),
       patch: parseInt(match.groups[2], 10),
     };
+  }
+
+  private getProjOptions(opts: ProjectRequestOptions): { [param: string]: string } {
+    opts = { ...defaultProjReqOpts, ...opts };
+    const result: { [param: string]: string } = {};
+    for (const key in opts) {
+      if (opts.hasOwnProperty(key)) {
+        result[key] = `${opts[key]}`;
+      }
+    }
+    return result;
   }
 }
