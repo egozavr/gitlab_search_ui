@@ -81,7 +81,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   openConfigSettings(): void {
     this.dialog.open(GitlabConfigDialogComponent, {
-      minWidth: 640,
+      minWidth: 548,
       autoFocus: false,
       panelClass: this.darkStyleClass ? 'dark-theme' : '',
     });
