@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { applyTransaction } from '@datorama/akita';
 import { Observable, Subject, throwError } from 'rxjs';
 import { finalize, map, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
-import { GitlabApiService } from 'src/app/gitlab-api.service';
+import { GitlabApiService, ProjectRequestOptions } from 'src/app/gitlab-api.service';
 import { GitlabConfigQuery } from 'src/app/state/gitlab-config.query';
 import { diffSets } from 'src/app/utils/array-diff';
 import { GitlabData, SearchProject } from './search-param.model';
@@ -39,9 +39,9 @@ export class SearchParamsService implements OnDestroy {
       });
   }
 
-  updateGitlabData(gitlabID: string, forceUpdate = false): void {
+  updateGitlabData(gitlabID: string): void {
     const data = this.searchParamsQuery.getEntity(gitlabID);
-    if (forceUpdate || !data || !data?.projects?.length || !this.searchParamsQuery.getHasCache()) {
+    if (!data || !data?.projects?.length || !this.searchParamsQuery.getHasCache()) {
       this.searchParamsStore.ui.update(gitlabID, state => ({
         ...state,
         isLoading: true,
@@ -67,6 +67,10 @@ export class SearchParamsService implements OnDestroy {
     }
   }
 
+  resetDataCache(): void {
+    this.searchParamsStore.setHasCache(false);
+  }
+
   setSearchProjects(projects: SearchProject[]): void {
     this.searchParamsStore.update(state => ({
       ...state,
@@ -84,7 +88,11 @@ export class SearchParamsService implements OnDestroy {
     if (!config) {
       return throwError(`no such gitlab in config: ${gitlabID}`);
     }
-    return this.gitlabApi.getAllProjects(config, { archived: withArchivedProjects }).pipe(
+    const opts: ProjectRequestOptions = {};
+    if (withArchivedProjects === false) {
+      opts.archived = false;
+    }
+    return this.gitlabApi.getAllProjects(config, opts).pipe(
       map(projects => ({
         id: gitlabID,
         projects,
