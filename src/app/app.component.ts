@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostBinding, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { applyTransaction } from '@datorama/akita';
 import { Observable, Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
 import { GitlabConfigDialogComponent } from './gitlab-config-dialog/gitlab-config-dialog.component';
@@ -94,10 +95,13 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   onWithArchivedChange(ev: boolean): void {
-    this.configSrv.setFilter({ withArchivedProjects: ev });
-    for (const gitlabID of this.searchParamsQuery.getSelectedGitLabs()) {
-      this.searchParamsSrv.updateGitlabData(gitlabID, true);
-    }
+    applyTransaction(() => {
+      this.configSrv.setFilter({ withArchivedProjects: ev });
+      this.searchParamsSrv.resetDataCache();
+      for (const gitlabID of this.searchParamsQuery.getSelectedGitLabs()) {
+        this.searchParamsSrv.updateGitlabData(gitlabID);
+      }
+    });
   }
 
   ngOnDestroy(): void {

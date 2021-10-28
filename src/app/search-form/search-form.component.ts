@@ -39,6 +39,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   @Input() set gitlabItems(items: GitlabData[]) {
+    this.clearNotRootNodeSelection();
     this.data$.next(items);
   }
 
@@ -281,6 +282,10 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
   private getSelectedProjects(): GitlabProject[] {
     return this.nodeSelection.selected.map(node => node.item).filter(item => isGitlabProject(item)) as GitlabProject[];
+  }
+
+  private clearNotRootNodeSelection(): void {
+    this.nodeSelection.deselect(...this.nodeSelection.selected.filter(node => node.level !== 0));
   }
 
   private filterData([datas, query]: [GitlabData[], string]): [GitlabData[], string] {

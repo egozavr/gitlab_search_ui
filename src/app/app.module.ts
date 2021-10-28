@@ -1,6 +1,6 @@
 import { CdkTreeModule } from '@angular/cdk/tree';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,6 +14,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTreeModule } from '@angular/material/tree';
 import { BrowserModule } from '@angular/platform-browser';
@@ -24,6 +25,7 @@ import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { GitlabConfigDialogComponent } from './gitlab-config-dialog/gitlab-config-dialog.component';
 import { GitlabConfigItemComponent } from './gitlab-config-item/gitlab-config-item.component';
+import { HttpErrorInterceptor } from './http-error.interceptor';
 import { AKITA_PERSIST_STORAGE } from './persist-state.token';
 import { QueryFormComponent } from './query-form/query-form.component';
 import { SearchFormComponent } from './search-form/search-form.component';
@@ -62,6 +64,7 @@ const storage = persistState({
     MatProgressSpinnerModule,
     MatSidenavModule,
     MatSlideToggleModule,
+    MatSnackBarModule,
     MatToolbarModule,
     MatTreeModule,
     environment.production ? [] : AkitaNgDevtools.forRoot(),
@@ -71,6 +74,7 @@ const storage = persistState({
       provide: AKITA_PERSIST_STORAGE,
       useValue: storage,
     },
+    { provide: HTTP_INTERCEPTORS, useClass: HttpErrorInterceptor, multi: true },
   ],
   bootstrap: [AppComponent],
 })
