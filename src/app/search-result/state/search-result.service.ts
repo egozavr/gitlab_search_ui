@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { guid } from '@datorama/akita';
-import { forkJoin, Observable, Subject } from 'rxjs';
-import { finalize, map, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { forkJoin, Observable, of, Subject } from 'rxjs';
+import { catchError, finalize, map, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { GitlabApiService } from 'src/app/gitlab-api.service';
 import { SearchParamsQuery } from 'src/app/search-params/state/search-params.query';
 import { GitlabConfig } from 'src/app/state/gitlab-config.model';
@@ -46,6 +46,13 @@ export class SearchResultService implements OnDestroy {
             return result;
           });
           return results;
+        }),
+        catchError(err => {
+          const project = this.paramQuery.getProjectByIDs(p.gitlab_id, p.project_id);
+          console.warn(
+            `Error during search in project ${project.name_with_namespace}, url ${project.web_url}: ${err.message || err.error || err}`
+          );
+          return of([]);
         })
       );
     });
