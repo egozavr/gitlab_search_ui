@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { EntityUIQuery, QueryEntity } from '@datorama/akita';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { GitlabProject, Project } from './search-param.model';
 import { SearchParamsState, SearchParamsStore, SearchParamUIState } from './search-params.store';
 
 @Injectable({ providedIn: 'root' })
@@ -19,6 +20,10 @@ export class SearchParamsQuery extends QueryEntity<SearchParamsState> {
 
   getSelectedGitLabs(): string[] {
     return Array.from(new Set(this.getValue().searchProjects.map(p => p.gitlab_id)));
+  }
+
+  getProjectByIDs(gitLabID: string, projectID: number): Project | null {
+    return this.getEntity(gitLabID)?.projects?.find(p => p.id === projectID);
   }
 
   dataLoading(): Observable<{ [gitlabID: string]: boolean }> {
