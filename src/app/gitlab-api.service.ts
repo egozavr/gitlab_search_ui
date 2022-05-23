@@ -4,7 +4,7 @@ import { Observable, of } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { Project } from './search-params/state/search-param.model';
 import { RichSearchResult, SearchResultRaw } from './search-result/state/search-result.model';
-import { GitlabConfig, GitlabVersion } from './state/gitlab-config.model';
+import { GitlabConfig, GitlabVersion } from './gitlab-config/state/gitlab-config.model';
 
 export interface WithNext<T> {
   nextURL?: string;
@@ -42,7 +42,7 @@ export class GitlabApiService {
   searchProjectBlobs(config: GitlabConfig, projectID: number, query: string): Observable<RichSearchResult[]> {
     return this.http
       .get<SearchResultRaw[]>(`${this.getApiV4URL(config)}/projects/${projectID}/search`, {
-        params: { scope: 'blobs', search: query },
+        params: { scope: 'blobs', search: query, per_page: 100 },
         headers: this.getAuthHeader(config),
       })
       .pipe(

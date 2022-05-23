@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import { ThemeMode } from '../state/gitlab-config.store';
+import { ThemeMode } from '../gitlab-config/state/gitlab-config.store';
 
 @Component({
   selector: 'app-theme-toggle',

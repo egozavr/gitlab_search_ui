@@ -3,17 +3,17 @@ import { MatDialog } from '@angular/material/dialog';
 import { applyTransaction } from '@datorama/akita';
 import { Observable, Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
-import { GitlabConfigDialogComponent } from './gitlab-config-dialog/gitlab-config-dialog.component';
+import { GitlabConfigDialogComponent } from './gitlab-config/gitlab-config-dialog/gitlab-config-dialog.component';
 import { GitlabData, GitlabProject } from './search-params/state/search-param.model';
 import { SearchParamsQuery } from './search-params/state/search-params.query';
 import { SearchParamsService } from './search-params/state/search-params.service';
 import { SearchResult } from './search-result/state/search-result.model';
 import { SearchResultQuery } from './search-result/state/search-result.query';
 import { SearchResultService } from './search-result/state/search-result.service';
-import { GitlabConfig } from './state/gitlab-config.model';
-import { GitlabConfigQuery } from './state/gitlab-config.query';
-import { GitlabConfigService } from './state/gitlab-config.service';
-import { ThemeMode } from './state/gitlab-config.store';
+import { GitlabConfig } from './gitlab-config/state/gitlab-config.model';
+import { GitlabConfigQuery } from './gitlab-config/state/gitlab-config.query';
+import { GitlabConfigService } from './gitlab-config/state/gitlab-config.service';
+import { ThemeMode } from './gitlab-config/state/gitlab-config.store';
 
 @Component({
   selector: 'app-root',
@@ -102,6 +102,10 @@ export class AppComponent implements OnInit, OnDestroy {
         this.searchParamsSrv.updateGitlabData(gitlabID);
       }
     });
+  }
+
+  onStopSearchEvent(): void {
+    this.searchResultsSrv.stopSearching();
   }
 
   ngOnDestroy(): void {

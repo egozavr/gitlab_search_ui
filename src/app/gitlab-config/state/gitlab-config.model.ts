@@ -8,4 +8,5 @@ export interface GitlabConfig {
   gitlabURL: string;
   token: string;
   version: GitlabVersion | null;
+  rateLimit: number | null;
 }

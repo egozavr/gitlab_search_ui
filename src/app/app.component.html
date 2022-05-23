@@ -24,6 +24,7 @@
         [projectSelected]="projectSelected$ | async"
         [resultLoading]="searchResultsLoading$ | async"
         (query)="search($event)"
+        (stop)="onStopSearchEvent()"
       ></app-query-form>
     </div>
     <app-search-results [results]="searchResults$ | async"></app-search-results>

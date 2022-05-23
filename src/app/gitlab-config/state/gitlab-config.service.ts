@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { applyTransaction, guid } from '@datorama/akita';
 import { forkJoin, of, Subject } from 'rxjs';
 import { catchError, takeUntil } from 'rxjs/operators';
-import { GitlabApiService } from '../gitlab-api.service';
+import { GitlabApiService } from '../../gitlab-api.service';
 import { GitlabConfig } from './gitlab-config.model';
 import { GitlabConfigQuery } from './gitlab-config.query';
 import { GitlabConfigStore, StoredFilter, ThemeMode } from './gitlab-config.store';

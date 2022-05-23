@@ -13,7 +13,7 @@ import {
   isGitlabProject,
   Namespace,
 } from '../search-params/state/search-param.model';
-import { GitlabConfig } from '../state/gitlab-config.model';
+import { GitlabConfig } from '../gitlab-config/state/gitlab-config.model';
 import { SelectionModelTrackBy } from './selection-model-track-by.class';
 
 export class GitlabEntityNode {
