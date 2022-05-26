@@ -3,7 +3,7 @@ import { applyTransaction, guid, selectPersistStateInit } from '@datorama/akita'
 import { forkJoin, Observable, of, Subject } from 'rxjs';
 import { catchError, takeUntil, withLatestFrom } from 'rxjs/operators';
 import { GitlabApiService } from '../../gitlab-api.service';
-import { RateLimitController } from '../rate-limit-controller.class';
+import { RateLimitController, RateLimitWaitEvent } from '../rate-limit-controller.class';
 import { GitlabConfig } from './gitlab-config.model';
 import { GitlabConfigQuery } from './gitlab-config.query';
 import { GitlabConfigStore, StoredFilter, ThemeMode } from './gitlab-config.store';
@@ -100,7 +100,7 @@ export class GitlabConfigService implements OnDestroy {
       });
   }
 
-  getGitlabRequest<T>(config: GitlabConfig, src$: Observable<T>): Observable<T> {
+  getGitlabRequest<T>(config: GitlabConfig, src$: Observable<T>): Observable<T | RateLimitWaitEvent> {
     if (this.rateLimiControllers.has(config.id)) {
       return this.rateLimiControllers.get(config.id).getLimited(src$);
     }

@@ -250,18 +250,14 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  displayNode(node: GitlabEntityFlatNode): string {
+  displayNode(node: GitlabEntityFlatNode): { value: string; isLink: boolean } {
     if (typeof node.item === 'string') {
-      return this.gitlabUrlByID[node.item];
+      return { value: this.gitlabUrlByID[node.item], isLink: true };
     }
     if (isGitlabNamespace(node.item) || isGitlabProject(node.item)) {
-      return node.item.name;
+      return { value: node.item.name, isLink: false };
     }
-    return '';
-  }
-
-  getGitlabURL(id: string): string {
-    return this.gitlabUrlByID[id];
+    return { value: '', isLink: false };
   }
 
   getNodeDataLoading(node: GitlabEntityFlatNode): boolean {

@@ -5,6 +5,7 @@
   $color-config: mat.get-color-config($theme);
   $primary: map.get($color-config, primary);
   $accent: map.get($color-config, accent);
+  $warn: map.get($color-config, warn);
   $foreground: map.get($theme, foreground);
   $background: map.get($theme, background);
   a:link {
@@ -21,6 +22,9 @@
   }
   .theme-background {
     background-color: map.get($background, card);
+  }
+  .theme-warn-color {
+    color: mat.get-color-from-palette($warn, 500);
   }
 }
 

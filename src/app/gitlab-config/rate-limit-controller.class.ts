@@ -1,5 +1,7 @@
-import { defer, Observable, Subject, Subscription, timer } from 'rxjs';
+import { concat, defer, Observable, of, Subject, Subscription, timer } from 'rxjs';
 import { delayWhen } from 'rxjs/operators';
+
+export class RateLimitWaitEvent {}
 
 export class RateLimitController {
   private count = 0;
@@ -10,10 +12,10 @@ export class RateLimitController {
 
   constructor(private rateLimit: number) {}
 
-  getLimited<T>(src$: Observable<T>): Observable<T> {
+  getLimited<T>(src$: Observable<T>): Observable<T | RateLimitWaitEvent> {
     return defer(() => {
       if (this.count === this.rateLimit - 1) {
-        return src$.pipe(delayWhen(() => this.reset$));
+        return concat(src$, of(new RateLimitWaitEvent()).pipe(delayWhen(() => this.reset$)));
       }
       this.count++;
       if (this.count === 1 || this.resetSubscription?.closed) {

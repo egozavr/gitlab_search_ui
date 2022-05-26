@@ -22,7 +22,7 @@
     <div class="query-form mat-elevation-z2 theme-background">
       <app-query-form
         [projectSelected]="projectSelected$ | async"
-        [resultLoading]="searchResultsLoading$ | async"
+        [searchProgress]="searchProgress$ | async"
         (query)="search($event)"
         (stop)="onStopSearchEvent()"
       ></app-query-form>

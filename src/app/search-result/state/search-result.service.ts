@@ -1,8 +1,9 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { guid } from '@datorama/akita';
+import { applyTransaction, guid } from '@datorama/akita';
 import { concat, forkJoin, merge, Observable, of, Subject } from 'rxjs';
 import { catchError, finalize, map, mapTo, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { GitlabApiService } from 'src/app/gitlab-api.service';
+import { RateLimitWaitEvent } from 'src/app/gitlab-config/rate-limit-controller.class';
 import { GitlabConfig } from 'src/app/gitlab-config/state/gitlab-config.model';
 import { GitlabConfigQuery } from 'src/app/gitlab-config/state/gitlab-config.query';
 import { GitlabConfigService } from 'src/app/gitlab-config/state/gitlab-config.service';
@@ -40,27 +41,41 @@ export class SearchResultService implements OnDestroy {
       }
     });
 
+    let projectSearched = 0;
+
     const searchRequests$ = byConfig.map(({ config, projectIDs }) =>
       concat(
         ...projectIDs.map(projecID => {
           const searchReqest$ = this.getSearchRequest(config, projecID, query);
           return this.configSrv.getGitlabRequest(config, searchReqest$).pipe(
-            tap(results => {
-              this.searchResultStore.upsertMany(
-                [].concat(...results).map((result: SearchResultRaw) => ({ ...result, resultID: guid() })),
-                { loading: true }
-              );
+            tap(resultsOrEvent => {
+              if (!(resultsOrEvent instanceof RateLimitWaitEvent)) {
+                applyTransaction(() => {
+                  this.searchResultStore.setProrgress({ done: ++projectSearched, total: searchProjects.length });
+                  this.searchResultStore.upsertMany(
+                    [].concat(...resultsOrEvent).map((result: SearchResultRaw) => ({ ...result, resultID: guid() })),
+                    { loading: true }
+                  );
+                });
+              }
             }),
             mapTo(null)
           );
         })
       )
     );
-    this.searchResultStore.setLoading(true);
+    applyTransaction(() => {
+      this.searchResultStore.setLoading(true);
+      this.searchResultStore.set([]);
+      this.searchResultStore.setProrgress({ done: 0, total: searchProjects.length });
+    });
     forkJoin(searchRequests$)
       .pipe(
         finalize(() => {
-          this.searchResultStore.setLoading(false);
+          applyTransaction(() => {
+            this.searchResultStore.setLoading(false);
+            this.searchResultStore.setProrgress(null);
+          });
         }),
         takeUntil(merge(this.destroy$, this.stopSearching$))
       )
