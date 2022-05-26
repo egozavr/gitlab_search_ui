@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
 import { GitlabConfig } from '../state/gitlab-config.model';
 import { GitlabConfigQuery } from '../state/gitlab-config.query';
@@ -8,15 +8,13 @@ import { GitlabConfigQuery } from '../state/gitlab-config.query';
   templateUrl: './gitlab-config-dialog.component.html',
   styleUrls: ['./gitlab-config-dialog.component.scss'],
 })
-export class GitlabConfigDialogComponent implements OnInit {
+export class GitlabConfigDialogComponent {
   configs$: Observable<GitlabConfig[]>;
   openedAddForms: true[] = [];
 
   constructor(gitlabConfigQuery: GitlabConfigQuery) {
     this.configs$ = gitlabConfigQuery.selectAll();
   }
-
-  ngOnInit(): void {}
 
   addForm(): void {
     this.openedAddForms.push(true);
