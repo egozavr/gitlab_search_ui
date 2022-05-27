@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { SearchProgress } from '../search-result/state/search-result.store';
 
 @Component({
   selector: 'app-query-form',
@@ -14,14 +15,14 @@ export class QueryFormComponent {
     query: new FormControl(null, [Validators.required, Validators.minLength(3)]),
   });
 
-  private loading = false;
+  private progress: SearchProgress | null = null;
   @Input()
-  get resultLoading(): boolean {
-    return this.loading;
+  get searchProgress(): SearchProgress | null {
+    return this.progress;
   }
-  set resultLoading(loadging: boolean) {
-    this.loading = loadging;
-    if (loadging) {
+  set searchProgress(progress: SearchProgress | null) {
+    this.progress = progress;
+    if (progress !== null) {
       this.queryForm.disable();
     } else {
       this.queryForm.enable();
@@ -29,6 +30,7 @@ export class QueryFormComponent {
   }
 
   @Output() query = new EventEmitter<string>();
+  @Output() stop = new EventEmitter<void>();
 
   submit(): void {
     this.query.emit(this.queryForm.value.query);

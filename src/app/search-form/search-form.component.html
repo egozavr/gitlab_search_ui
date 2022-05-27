@@ -14,12 +14,12 @@
     <ng-container *ngIf="getNodeDataLoading(node); else selectableNode">
       <div class="loading-box">
         <mat-spinner [diameter]="20"></mat-spinner>
-        {{ displayNode(node) }}
+        <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNode(node) }"></ng-container>
       </div>
     </ng-container>
     <ng-template #selectableNode>
       <mat-checkbox class="checklist-leaf-node" [checked]="nodeSelection.isSelected(node)" (change)="leafNodeSelectionToggle(node, $event)">
-        {{ displayNode(node) }}
+        <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNode(node) }"></ng-container>
       </mat-checkbox>
     </ng-template>
   </mat-tree-node>
@@ -34,10 +34,21 @@
       [indeterminate]="descendantsPartiallySelected(node)"
       (change)="nodeSelectionToggle(node, $event)"
     >
-      {{ displayNode(node) }}
+      <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNode(node) }"></ng-container>
     </mat-checkbox>
   </mat-tree-node>
 </mat-tree>
 <ng-template #nogitlabs>
   <p>No gitlabs configured yet</p>
+</ng-template>
+<ng-template #nodeTmpl let-displayed>
+  <ng-container *ngIf="displayed.isLink; else noLink">
+    <span class="gitlab-name">
+      <span>{{ displayed.value }}</span>
+      <a [attr.href]="displayed.value" target="_blank">
+        <mat-icon>link</mat-icon>
+      </a>
+    </span>
+  </ng-container>
+  <ng-template #noLink>{{ displayed.value }}</ng-template>
 </ng-template>

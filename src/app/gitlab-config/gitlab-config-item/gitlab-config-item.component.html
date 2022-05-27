@@ -1,5 +1,6 @@
 <div class="item" *ngIf="gitlabConfig && !editMode">
-  <span>{{ gitlabConfig.gitlabURL }}</span>
+  <span class="url">{{ gitlabConfig.gitlabURL }}</span>
+  <span *ngIf="gitlabConfig.rateLimit">rateLimit: {{ gitlabConfig.rateLimit }} rpm</span>
   <span class="spacer"></span>
   <button mat-icon-button (click)="changeMode(true)">
     <mat-icon>edit</mat-icon>
@@ -12,6 +13,20 @@
   <mat-form-field class="url">
     <mat-label>URL</mat-label>
     <input formControlName="gitlabURL" matInput />
+  </mat-form-field>
+  <mat-form-field class="rate-limit">
+    <mat-label>Rate limit (rpm)</mat-label>
+    <input formControlName="rateLimit" matInput type="number" min="0" step="1" class="without-arrows" />
+    <button
+      mat-icon-button
+      matSuffix
+      type="button"
+      tabindex="-1"
+      [disabled]="!configForm.get('rateLimit').value"
+      (click)="$event.stopPropagation(); configForm.get('rateLimit').setValue(null)"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
   </mat-form-field>
   <mat-form-field>
     <mat-label>Token</mat-label>

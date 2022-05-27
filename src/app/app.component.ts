@@ -3,17 +3,18 @@ import { MatDialog } from '@angular/material/dialog';
 import { applyTransaction } from '@datorama/akita';
 import { Observable, Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
-import { GitlabConfigDialogComponent } from './gitlab-config-dialog/gitlab-config-dialog.component';
+import { GitlabConfigDialogComponent } from './gitlab-config/gitlab-config-dialog/gitlab-config-dialog.component';
 import { GitlabData, GitlabProject } from './search-params/state/search-param.model';
 import { SearchParamsQuery } from './search-params/state/search-params.query';
 import { SearchParamsService } from './search-params/state/search-params.service';
 import { SearchResult } from './search-result/state/search-result.model';
 import { SearchResultQuery } from './search-result/state/search-result.query';
 import { SearchResultService } from './search-result/state/search-result.service';
-import { GitlabConfig } from './state/gitlab-config.model';
-import { GitlabConfigQuery } from './state/gitlab-config.query';
-import { GitlabConfigService } from './state/gitlab-config.service';
-import { ThemeMode } from './state/gitlab-config.store';
+import { GitlabConfig } from './gitlab-config/state/gitlab-config.model';
+import { GitlabConfigQuery } from './gitlab-config/state/gitlab-config.query';
+import { GitlabConfigService } from './gitlab-config/state/gitlab-config.service';
+import { ThemeMode } from './gitlab-config/state/gitlab-config.store';
+import { SearchProgress } from './search-result/state/search-result.store';
 
 @Component({
   selector: 'app-root',
@@ -28,7 +29,7 @@ export class AppComponent implements OnInit, OnDestroy {
   gitlabItems$: Observable<GitlabData[]>;
   gitladDataLoading$: Observable<{ [gitlabID: string]: boolean }>;
   searchResults$: Observable<SearchResult[]>;
-  searchResultsLoading$: Observable<boolean>;
+  searchProgress$: Observable<SearchProgress | null>;
   projectSelected$: Observable<boolean>;
   themeMode$: Observable<ThemeMode>;
   withArchived$: Observable<boolean>;
@@ -49,7 +50,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.gitladDataLoading$ = this.searchParamsQuery.dataLoading();
     this.gitlabConfigs$ = this.configQuery.selectAll();
     this.searchResults$ = this.searchResultsQuery.selectAll();
-    this.searchResultsLoading$ = this.searchResultsQuery.selectLoading();
+    this.searchProgress$ = this.searchResultsQuery.selectProgress();
     this.projectSelected$ = this.searchParamsQuery.projectSelected();
     this.themeMode$ = this.configQuery.selectThemeMode();
     this.withArchived$ = this.configQuery.selectWithArchivedFilter();
@@ -102,6 +103,10 @@ export class AppComponent implements OnInit, OnDestroy {
         this.searchParamsSrv.updateGitlabData(gitlabID);
       }
     });
+  }
+
+  onStopSearchEvent(): void {
+    this.searchResultsSrv.stopSearching();
   }
 
   ngOnDestroy(): void {

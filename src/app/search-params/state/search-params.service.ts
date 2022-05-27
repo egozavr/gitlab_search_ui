@@ -3,7 +3,7 @@ import { applyTransaction } from '@datorama/akita';
 import { Observable, Subject, throwError } from 'rxjs';
 import { finalize, map, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { GitlabApiService, ProjectRequestOptions } from 'src/app/gitlab-api.service';
-import { GitlabConfigQuery } from 'src/app/state/gitlab-config.query';
+import { GitlabConfigQuery } from 'src/app/gitlab-config/state/gitlab-config.query';
 import { diffSets } from 'src/app/utils/array-diff';
 import { GitlabData, SearchProject } from './search-param.model';
 import { SearchParamsQuery } from './search-params.query';

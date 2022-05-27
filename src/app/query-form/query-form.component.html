@@ -8,9 +8,22 @@
     <mat-error *ngIf="!projectSelected">Please select at least one GitLab project</mat-error>
   </div>
   <div>
-    <button mat-raised-button color="primary" [disabled]="!projectSelected || queryForm.pristine || queryForm.invalid || resultLoading">
+    <button
+      mat-raised-button
+      color="primary"
+      *ngIf="!searchProgress; else stopSearching"
+      [disabled]="!projectSelected || queryForm.pristine || queryForm.invalid"
+    >
       <mat-icon>search</mat-icon>&nbsp;Search
     </button>
+    <ng-template #stopSearching>
+      <button mat-raised-button color="warn" type="button" (click)="stop.emit()"><mat-icon>stop</mat-icon>&nbsp;Stop</button>
+      <div class="progress-count theme-warn-color">{{ searchProgress.done }} / {{ searchProgress.total }}</div>
+    </ng-template>
   </div>
 </form>
-<mat-progress-bar mode="indeterminate" *ngIf="resultLoading"></mat-progress-bar>
+<mat-progress-bar
+  mode="determinate"
+  *ngIf="searchProgress !== null"
+  [value]="(searchProgress.done / searchProgress.total) * 100"
+></mat-progress-bar>

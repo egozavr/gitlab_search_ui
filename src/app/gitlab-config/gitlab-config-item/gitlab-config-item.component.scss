@@ -15,10 +15,11 @@ form {
       }
     }
   }
-}
-
-form {
   .url {
     min-width: 200px;
   }
+  .rate-limit {
+    width: 120px;
+  }
 }
+

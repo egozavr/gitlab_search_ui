@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { GitlabConfig } from '../state/gitlab-config.model';
 import { GitlabConfigService } from '../state/gitlab-config.service';
 
@@ -20,6 +20,7 @@ export class GitlabConfigItemComponent implements OnInit {
   ngOnInit(): void {
     this.configForm = new FormGroup({
       gitlabURL: new FormControl(),
+      rateLimit: new FormControl(null, Validators.min(0)),
       token: new FormControl(),
     });
   }
@@ -29,6 +30,7 @@ export class GitlabConfigItemComponent implements OnInit {
       if (this.gitlabConfig) {
         this.configForm.setValue({
           gitlabURL: this.gitlabConfig.gitlabURL,
+          rateLimit: this.gitlabConfig.rateLimit || null,
           token: this.gitlabConfig.token,
         });
       }
@@ -45,6 +47,9 @@ export class GitlabConfigItemComponent implements OnInit {
       return;
     }
     const toSave = { ...this.configForm.value };
+    if (toSave.rateLimit === 0) {
+      toSave.rateLimit = null;
+    }
     if (this.gitlabConfig && this.gitlabConfig.id) {
       this.gitlabConfigService.update(this.gitlabConfig.id, toSave);
     } else {
