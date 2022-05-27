@@ -18,3 +18,17 @@
 .mat-icon[matprefix] {
   margin-right: 10px;
 }
+
+.mat-checkbox-label {
+  vertical-align: middle;
+}
+
+.gitlab-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  a {
+    display: flex;
+    text-decoration: none;
+  }
+}

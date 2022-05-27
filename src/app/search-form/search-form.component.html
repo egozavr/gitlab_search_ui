@@ -43,7 +43,12 @@
 </ng-template>
 <ng-template #nodeTmpl let-displayed>
   <ng-container *ngIf="displayed.isLink; else noLink">
-    <a [attr.href]="displayed.value" target="_blank">{{ displayed.value }}</a>
+    <span class="gitlab-name">
+      <span>{{ displayed.value }}</span>
+      <a [attr.href]="displayed.value" target="_blank">
+        <mat-icon>link</mat-icon>
+      </a>
+    </span>
   </ng-container>
   <ng-template #noLink>{{ displayed.value }}</ng-template>
 </ng-template>
