@@ -14,8 +14,8 @@ export class RateLimitController {
 
   getLimited<T>(src$: Observable<T>): Observable<T | RateLimitWaitEvent> {
     return defer(() => {
-      if (this.count === this.rateLimit - 1) {
-        return concat(src$, of(new RateLimitWaitEvent()).pipe(delayWhen(() => this.reset$)));
+      if (this.count === this.rateLimit) {
+        return concat(of(new RateLimitWaitEvent()).pipe(delayWhen(() => this.reset$)), src$);
       }
       this.count++;
       if (this.count === 1 || this.resetSubscription?.closed) {
