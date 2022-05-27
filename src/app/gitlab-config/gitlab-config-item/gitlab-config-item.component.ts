@@ -20,8 +20,8 @@ export class GitlabConfigItemComponent implements OnInit {
   ngOnInit(): void {
     this.configForm = new FormGroup({
       gitlabURL: new FormControl(),
-      rateLimit: new FormControl(),
-      token: new FormControl(null, Validators.min(0)),
+      rateLimit: new FormControl(null, Validators.min(0)),
+      token: new FormControl(),
     });
   }
 
