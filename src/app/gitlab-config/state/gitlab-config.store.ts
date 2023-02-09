@@ -8,7 +8,7 @@ export interface StoredFilter {
   withArchivedProjects: boolean;
 }
 
-export interface GitlabConfigState extends EntityState<GitlabConfig> {
+export interface GitlabConfigState extends EntityState<GitlabConfig, string> {
   ui: {
     themeMode: ThemeMode;
   };
