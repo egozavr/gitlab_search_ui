@@ -4,7 +4,7 @@ import { forkJoin, Observable, of, Subject } from 'rxjs';
 import { catchError, takeUntil, withLatestFrom } from 'rxjs/operators';
 import { GitlabApiService } from '../../gitlab-api.service';
 import { RateLimitController, RateLimitWaitEvent } from '../rate-limit-controller.class';
-import { GitlabConfig } from './gitlab-config.model';
+import { GitlabConfig, GitlabVersion } from './gitlab-config.model';
 import { GitlabConfigQuery } from './gitlab-config.query';
 import { GitlabConfigStore, StoredFilter, ThemeMode } from './gitlab-config.store';
 
@@ -83,7 +83,7 @@ export class GitlabConfigService implements OnDestroy {
         this.api.getVersion(config).pipe(
           catchError(err => {
             console.warn(`Error loading gitlab ${config.gitlabURL} version`, err);
-            return of<null>(null);
+            return of<GitlabVersion>(null);
           })
         )
       )
