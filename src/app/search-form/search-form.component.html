@@ -7,6 +7,7 @@
   </button>
   <mat-error *ngIf="filterCtrl.hasError('minlength')">Enter at least 3 characters</mat-error>
 </mat-form-field>
+
 <mat-slide-toggle [checked]="withArchived" (change)="withArchivedChange.emit($event.checked)">With archived projects</mat-slide-toggle>
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" *ngIf="this.dataSource.data?.length > 0; else nogitlabs">
   <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
