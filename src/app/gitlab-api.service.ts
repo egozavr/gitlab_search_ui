@@ -51,7 +51,7 @@ export class GitlabApiService {
             (raw as RichSearchResult).gitlabID = config.id;
           });
           return raws;
-        })
+        }),
       );
   }
 
@@ -91,7 +91,7 @@ export class GitlabApiService {
             return of(projects);
           }
           return req(nextLink).pipe(map(data => data.concat(projects)));
-        })
+        }),
       );
     };
     return req();
@@ -118,7 +118,7 @@ export class GitlabApiService {
             return of(projects);
           }
           return req(page + 1).pipe(map(data => data.concat(projects)));
-        })
+        }),
       );
     };
     return req(1);

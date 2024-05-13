@@ -9,12 +9,13 @@
     <mat-icon>delete</mat-icon>
   </button>
 </div>
+
 <form [formGroup]="configForm" *ngIf="editMode" (ngSubmit)="save()">
-  <mat-form-field class="url">
+  <mat-form-field appearance="outline" class="url">
     <mat-label>URL</mat-label>
     <input formControlName="gitlabURL" matInput />
   </mat-form-field>
-  <mat-form-field class="rate-limit">
+  <mat-form-field appearance="outline" class="rate-limit">
     <mat-label>Rate limit (rpm)</mat-label>
     <input formControlName="rateLimit" matInput type="number" min="0" step="1" class="without-arrows" />
     <button
@@ -28,15 +29,15 @@
       <mat-icon>close</mat-icon>
     </button>
   </mat-form-field>
-  <mat-form-field>
+  <mat-form-field appearance="outline" class="token">
     <mat-label>Token</mat-label>
     <input formControlName="token" matInput />
   </mat-form-field>
   <span class="spacer"></span>
-  <button type="submit" mat-icon-button>
+  <button type="submit" mat-icon-button class="form-action">
     <mat-icon>save</mat-icon>
   </button>
-  <button type="button" mat-icon-button (click)="changeMode(false)">
+  <button type="button" mat-icon-button class="form-action" (click)="changeMode(false)">
     <mat-icon>cancel</mat-icon>
   </button>
 </form>

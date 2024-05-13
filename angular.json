@@ -32,8 +32,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "1mb",
+                  "maximumError": "2mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -64,11 +64,11 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "gitlab_search_ui:build:production"
+              "buildTarget": "gitlab_search_ui:build:production"
             },
             "development": {
-              "browserTarget": "gitlab_search_ui:build:development",
-              "liveReload": false
+              "liveReload": false,
+              "buildTarget": "gitlab_search_ui:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -76,7 +76,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "gitlab_search_ui:build"
+            "buildTarget": "gitlab_search_ui:build"
           }
         },
         "test": {

@@ -21,7 +21,7 @@ export class SearchResultService implements OnDestroy {
     private gitlabApi: GitlabApiService,
     private configQuery: GitlabConfigQuery,
     private configSrv: GitlabConfigService,
-    private paramQuery: SearchParamsQuery
+    private paramQuery: SearchParamsQuery,
   ) {}
 
   search(query: string): void {
@@ -54,15 +54,15 @@ export class SearchResultService implements OnDestroy {
                   this.searchResultStore.setProrgress({ done: ++projectSearched, total: searchProjects.length });
                   this.searchResultStore.upsertMany(
                     [].concat(...resultsOrEvent).map((result: SearchResultRaw) => ({ ...result, resultID: guid() })),
-                    { loading: true }
+                    { loading: true },
                   );
                 });
               }
             }),
-            mapTo(null)
+            mapTo(null),
           );
-        })
-      )
+        }),
+      ),
     );
     applyTransaction(() => {
       this.searchResultStore.setLoading(true);
@@ -77,7 +77,7 @@ export class SearchResultService implements OnDestroy {
             this.searchResultStore.setProrgress(null);
           });
         }),
-        takeUntil(merge(this.destroy$, this.stopSearching$))
+        takeUntil(merge(this.destroy$, this.stopSearching$)),
       )
       .subscribe();
   }
@@ -121,10 +121,10 @@ export class SearchResultService implements OnDestroy {
       catchError(err => {
         const project = this.paramQuery.getProjectByIDs(config.id, projectID);
         console.warn(
-          `Error during search in project ${project.name_with_namespace}, url ${project.web_url}: ${err.message || err.error || err}`
+          `Error during search in project ${project.name_with_namespace}, url ${project.web_url}: ${err.message || err.error || err}`,
         );
         return of([]);
-      })
+      }),
     );
   }
 }

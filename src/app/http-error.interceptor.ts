@@ -19,7 +19,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
         }
         this.snackbar.open(message, 'Close', { duration: 15000, panelClass: 'error-snackbar' });
         return throwError(err);
-      })
+      }),
     );
   }
 }

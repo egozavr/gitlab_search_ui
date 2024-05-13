@@ -4,22 +4,25 @@ form {
   gap: 10px;
   align-items: center;
   min-height: 60px;
-  .mat-icon-button {
+  .mat-mdc-icon-button {
     opacity: 0.2;
   }
   &:hover {
-    .mat-icon-button {
+    .mat-mdc-icon-button {
       opacity: 0.7;
       &:hover {
         opacity: 1;
       }
     }
   }
-  .url {
-    min-width: 200px;
+  .url,
+  .token {
+    min-width: 240px;
   }
   .rate-limit {
-    width: 120px;
+    width: 180px;
   }
 }
-
+.form-action {
+  margin-bottom: 20px;
+}

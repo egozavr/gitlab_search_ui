@@ -14,7 +14,11 @@ export class SelectionModelTrackBy<T, K = T> {
     return this._selected;
   }
 
-  constructor(private _trackBy: (v: T) => K, private _multiple = false, initiallySelectedValues: T[] = []) {
+  constructor(
+    private _trackBy: (v: T) => K,
+    private _multiple = false,
+    initiallySelectedValues: T[] = [],
+  ) {
     if (initiallySelectedValues && initiallySelectedValues.length) {
       if (_multiple) {
         initiallySelectedValues.forEach(value => this._markSelected(value));

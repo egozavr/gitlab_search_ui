@@ -6,8 +6,8 @@
   <span class="spacer"></span>
   <app-theme-toggle [mode]="themeMode$ | async" (toggleMode)="toggleThemeMode()"></app-theme-toggle>
 </mat-toolbar>
-<mat-sidenav-container>
-  <mat-sidenav mode="side" opened disableClose>
+<main class="theme-base">
+  <aside class="theme-card mat-elevation-z4 mat-typography">
     <app-search-form
       [gitlabConfigs]="gitlabConfigs$ | async"
       [gitlabItems]="gitlabItems$ | async"
@@ -17,9 +17,9 @@
       (projectsSelected)="updateSelectedProjects($event)"
       (withArchivedChange)="onWithArchivedChange($event)"
     ></app-search-form>
-  </mat-sidenav>
-  <mat-sidenav-content>
-    <div class="query-form mat-elevation-z2 theme-background">
+  </aside>
+  <div class="content">
+    <div class="query-form mat-elevation-z2 theme-card">
       <app-query-form
         [projectSelected]="projectSelected$ | async"
         [searchProgress]="searchProgress$ | async"
@@ -28,5 +28,5 @@
       ></app-query-form>
     </div>
     <app-search-results [results]="searchResults$ | async"></app-search-results>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+  </div>
+</main>

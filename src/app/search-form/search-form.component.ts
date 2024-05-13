@@ -3,17 +3,17 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnI
 import { FormControl, Validators } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
-import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, combineLatest } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, startWith, takeUntil, tap } from 'rxjs/operators';
+import { GitlabConfig } from '../gitlab-config/state/gitlab-config.model';
 import {
   GitlabData,
   GitlabNamespace,
   GitlabProject,
+  Namespace,
   isGitlabNamespace,
   isGitlabProject,
-  Namespace,
 } from '../search-params/state/search-param.model';
-import { GitlabConfig } from '../gitlab-config/state/gitlab-config.model';
 import { SelectionModelTrackBy } from './selection-model-track-by.class';
 
 export class GitlabEntityNode {
@@ -95,7 +95,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       distinctUntilChanged(),
       tap(() => {
         this.nodeSelection.clear();
-      })
+      }),
     );
     this.filteredData$ = combineLatest([this.data$, queries$]).pipe(map(this.filterData));
     this.filteredData$.pipe(takeUntil(this.destroy$)).subscribe(([data, query]) => {

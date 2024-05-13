@@ -24,8 +24,8 @@ export class RateLimitController {
           src$.pipe(
             tap(() => {
               this.count++;
-            })
-          )
+            }),
+          ),
         );
       }
       if (this.count === 1 || this.resetSubscription?.closed) {
