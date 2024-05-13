@@ -36,7 +36,7 @@ export class SearchParamsQuery extends QueryEntity<SearchParamsState> {
           }
         }
         return res;
-      })
+      }),
     );
   }
 }

@@ -13,7 +13,11 @@ export class GitlabConfigService implements OnDestroy {
   private destroy$ = new Subject<void>();
   private rateLimiControllers: Map<string, RateLimitController> = new Map();
 
-  constructor(private store: GitlabConfigStore, private query: GitlabConfigQuery, private api: GitlabApiService) {
+  constructor(
+    private store: GitlabConfigStore,
+    private query: GitlabConfigQuery,
+    private api: GitlabApiService,
+  ) {
     selectPersistStateInit()
       .pipe(withLatestFrom(this.query.selectAll()), takeUntil(this.destroy$))
       .subscribe(([_, configs]) => {
@@ -84,9 +88,9 @@ export class GitlabConfigService implements OnDestroy {
           catchError(err => {
             console.warn(`Error loading gitlab ${config.gitlabURL} version`, err);
             return of<GitlabVersion>(null);
-          })
-        )
-      )
+          }),
+        ),
+      ),
     )
       .pipe(takeUntil(this.destroy$))
       .subscribe(versions => {

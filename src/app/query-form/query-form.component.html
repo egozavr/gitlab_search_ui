@@ -14,10 +14,14 @@
       *ngIf="!searchProgress; else stopSearching"
       [disabled]="!projectSelected || queryForm.pristine || queryForm.invalid"
     >
-      <mat-icon>search</mat-icon>&nbsp;Search
+      <mat-icon>search</mat-icon>
+      &nbsp;Search
     </button>
     <ng-template #stopSearching>
-      <button mat-raised-button color="warn" type="button" (click)="stop.emit()"><mat-icon>stop</mat-icon>&nbsp;Stop</button>
+      <button mat-raised-button color="warn" type="button" (click)="stop.emit()">
+        <mat-icon>stop</mat-icon>
+        &nbsp;Stop
+      </button>
       <div class="progress-count theme-warn-color">{{ searchProgress.done }} / {{ searchProgress.total }}</div>
     </ng-template>
   </div>

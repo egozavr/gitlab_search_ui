@@ -44,7 +44,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private searchParamsQuery: SearchParamsQuery,
     private searchResultsSrv: SearchResultService,
     private searchResultsQuery: SearchResultQuery,
-    private dialog: MatDialog
+    private dialog: MatDialog,
   ) {
     this.gitlabItems$ = this.searchParamsQuery.selectAll();
     this.gitladDataLoading$ = this.searchParamsQuery.dataLoading();

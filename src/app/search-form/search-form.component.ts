@@ -95,7 +95,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       distinctUntilChanged(),
       tap(() => {
         this.nodeSelection.clear();
-      })
+      }),
     );
     this.filteredData$ = combineLatest([this.data$, queries$]).pipe(map(this.filterData));
     this.filteredData$.pipe(takeUntil(this.destroy$)).subscribe(([data, query]) => {

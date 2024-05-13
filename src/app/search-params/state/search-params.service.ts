@@ -16,7 +16,7 @@ export class SearchParamsService implements OnDestroy {
     private searchParamsStore: SearchParamsStore,
     private searchParamsQuery: SearchParamsQuery,
     private configQuery: GitlabConfigQuery,
-    private gitlabApi: GitlabApiService
+    private gitlabApi: GitlabApiService,
   ) {
     this.configQuery
       .selectAll()
@@ -61,7 +61,7 @@ export class SearchParamsService implements OnDestroy {
               isLoading: false,
             }));
           }),
-          takeUntil(this.destroy$)
+          takeUntil(this.destroy$),
         )
         .subscribe();
     }
@@ -96,7 +96,7 @@ export class SearchParamsService implements OnDestroy {
       map(projects => ({
         id: gitlabID,
         projects,
-      }))
+      })),
     );
   }
 }
