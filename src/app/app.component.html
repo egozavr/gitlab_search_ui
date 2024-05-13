@@ -17,7 +17,6 @@
       (projectsSelected)="updateSelectedProjects($event)"
       (withArchivedChange)="onWithArchivedChange($event)"
     ></app-search-form>
-    <!-- <mat-divider vertical></mat-divider> -->
   </aside>
   <div class="content">
     <div class="query-form mat-elevation-z2 theme-card">
@@ -31,9 +30,3 @@
     <app-search-results [results]="searchResults$ | async"></app-search-results>
   </div>
 </main>
-<!-- <mat-sidenav-container>
-  <mat-sidenav mode="side" opened disableClose>
-  </mat-sidenav>
-  <mat-sidenav-content>
-  </mat-sidenav-content>
-</mat-sidenav-container> -->
