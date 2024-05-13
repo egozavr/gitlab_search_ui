@@ -10,17 +10,13 @@
   display: flex;
   height: 24px;
   align-items: center;
-  .mat-spinner {
+  .mat-mdc-progress-spinner {
     margin-right: 4px;
   }
 }
 
 .mat-icon[matprefix] {
   margin-right: 10px;
-}
-
-.mat-checkbox-label {
-  vertical-align: middle;
 }
 
 .gitlab-name {

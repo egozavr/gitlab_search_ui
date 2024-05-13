@@ -1,6 +1,6 @@
 import { CdkTreeModule } from '@angular/cdk/tree';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -47,12 +47,11 @@ const storage = persistState({
     QueryFormComponent,
   ],
   imports: [
-    CommonModule,
-    CdkTreeModule,
-    HttpClientModule,
-    BrowserModule,
     BrowserAnimationsModule,
-    ReactiveFormsModule,
+    BrowserModule,
+    CdkTreeModule,
+    CommonModule,
+    HttpClientModule,
     MatButtonModule,
     MatCheckboxModule,
     MatDialogModule,
@@ -67,6 +66,7 @@ const storage = persistState({
     MatSnackBarModule,
     MatToolbarModule,
     MatTreeModule,
+    ReactiveFormsModule,
     environment.production ? [] : AkitaNgDevtools.forRoot(),
   ],
   providers: [

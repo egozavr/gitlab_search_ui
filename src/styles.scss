@@ -10,11 +10,11 @@ body {
   flex: 1 0 auto;
 }
 
-.error-snackbar.mat-snack-bar-container {
+.error-snackbar.mat-mdc-snack-bar-container {
   max-width: 90vw;
   background-color: darkred;
   color: whitesmoke;
-  .mat-button {
+  .mat-mdc-button {
     color: white;
   }
 }

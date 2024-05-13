@@ -32,6 +32,8 @@ $app-light-primary: mat.define-palette(mat.$teal-palette, 500);
 $app-light-accent: mat.define-palette(mat.$indigo-palette, A200, A100, A400);
 $app-light-warn: mat.define-palette(mat.$red-palette);
 
+$typography: mat.define-typography-config();
+
 $app-light-theme: mat.define-light-theme(
   (
     color: (
@@ -39,7 +41,7 @@ $app-light-theme: mat.define-light-theme(
       accent: $app-light-accent,
       warn: $app-light-warn,
     ),
-    typography: mat.define-typography-config(),
+    typography: $typography,
     density: 0,
   )
 );
@@ -58,7 +60,9 @@ $app-dark-theme: mat.define-dark-theme(
   )
 );
 
-@include mat.core($app-light-theme);
+@include mat.core();
+@include mat.typography-hierarchy($typography);
+// TODO: change to themes only for used material components, not all
 @include mat.all-component-themes($app-light-theme);
 @include custom-styles-theme($app-light-theme);
 

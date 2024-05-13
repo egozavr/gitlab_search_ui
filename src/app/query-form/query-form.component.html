@@ -1,6 +1,6 @@
 <form [formGroup]="queryForm" (ngSubmit)="submit()">
   <div class="query-section">
-    <mat-form-field>
+    <mat-form-field appearance="outline">
       <mat-label>Search query</mat-label>
       <input matInput formControlName="query" required />
       <mat-error *ngIf="queryForm.get('query').hasError('minlength')">Please enter at least 3 characters</mat-error>
