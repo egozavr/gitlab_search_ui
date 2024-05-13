@@ -20,8 +20,13 @@
   a:active {
     color: mat.get-color-from-palette($accent, A700);
   }
-  .theme-background {
+  .theme-card {
     background-color: map.get($background, card);
+    color: map.get($foreground, text);
+  }
+  .theme-base {
+    background-color: mat.get-color-from-palette($background, background);
+    color: map.get($foreground, text);
   }
   .theme-warn-color {
     color: mat.get-color-from-palette($warn, 500);
@@ -60,13 +65,39 @@ $app-dark-theme: mat.define-dark-theme(
   )
 );
 
-@include mat.core();
 @include mat.typography-hierarchy($typography);
-// TODO: change to themes only for used material components, not all
-@include mat.all-component-themes($app-light-theme);
+@include mat.core();
+
+@include mat.core-theme($app-light-theme);
+@include mat.button-theme($app-light-theme);
+@include mat.checkbox-theme($app-light-theme);
+@include mat.dialog-theme($app-light-theme);
+@include mat.divider-theme($app-light-theme);
+@include mat.form-field-theme($app-light-theme);
+@include mat.icon-theme($app-light-theme);
+@include mat.input-theme($app-light-theme);
+@include mat.progress-bar-theme($app-light-theme);
+@include mat.progress-spinner-theme($app-light-theme);
+@include mat.slide-toggle-theme($app-light-theme);
+@include mat.snack-bar-theme($app-light-theme);
+@include mat.toolbar-theme($app-light-theme);
+@include mat.tree-theme($app-light-theme);
 @include custom-styles-theme($app-light-theme);
 
 .dark-theme {
-  @include mat.all-component-colors($app-dark-theme);
+  @include mat.core-color($app-dark-theme);
+  @include mat.button-color($app-dark-theme);
+  @include mat.checkbox-color($app-dark-theme);
+  @include mat.dialog-color($app-dark-theme);
+  @include mat.divider-color($app-dark-theme);
+  @include mat.form-field-color($app-dark-theme);
+  @include mat.icon-color($app-dark-theme);
+  @include mat.input-color($app-dark-theme);
+  @include mat.progress-bar-color($app-dark-theme);
+  @include mat.progress-spinner-color($app-dark-theme);
+  @include mat.slide-toggle-color($app-dark-theme);
+  @include mat.snack-bar-color($app-dark-theme);
+  @include mat.toolbar-color($app-dark-theme);
+  @include mat.tree-color($app-dark-theme);
   @include custom-styles-theme($app-dark-theme);
 }

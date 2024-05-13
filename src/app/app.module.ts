@@ -61,7 +61,6 @@ const storage = persistState({
     MatInputModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
-    MatSidenavModule,
     MatSlideToggleModule,
     MatSnackBarModule,
     MatToolbarModule,

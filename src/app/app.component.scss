@@ -9,19 +9,35 @@
     margin-right: 20px;
   }
 }
-.mat-sidenav-container {
+
+main {
   flex: 1;
-  .mat-sidenav {
-    .mat-mdc-raised-button {
-      display: block;
-      width: calc(100% - 40px);
-      margin: auto;
-    }
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-flow: nowrap;
+  .content {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+  }
+  .mat-mdc-raised-button {
+    display: block;
+    width: calc(100% - 40px);
+    margin: auto;
+  }
+  aside {
+    flex: 1 0 auto;
+    z-index: 2;
+    max-width: 960px;
+    height: 100%;
+    overflow-y: auto;
   }
   .query-form {
-    z-index: 5;
+    z-index: 1;
     position: sticky;
     top: 0px;
     left: 0px;
   }
 }
+
