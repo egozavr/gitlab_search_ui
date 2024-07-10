@@ -69,10 +69,8 @@ export class GitlabConfigService implements OnDestroy {
     }
   }
 
-  toggleThemeMode(): void {
-    const currentMode = this.store.getValue().ui.themeMode;
-    const newMode: ThemeMode = currentMode === 'light' ? 'dark' : 'light';
-    this.store.update(state => ({ ...state, ui: { ...state.ui, themeMode: newMode } }));
+  setThemeMode(mode: ThemeMode): void {
+    this.store.update(state => ({ ...state, ui: { ...state.ui, themeMode: mode } }));
   }
 
   setFilter(filter: Partial<StoredFilter>): void {

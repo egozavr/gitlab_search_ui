@@ -1,4 +1,12 @@
+.mat-mdc-card {
+  margin: 0 16px 16px 16px;
+}
+
 .result-item {
-  padding: 20px;
+  padding: 16px 20px;
   border-bottom: 1px solid lightgray;
+
+  pre {
+    overflow: auto;
+  }
 }

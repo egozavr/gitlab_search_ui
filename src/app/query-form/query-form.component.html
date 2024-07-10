@@ -1,33 +1,33 @@
-<form [formGroup]="queryForm" (ngSubmit)="submit()">
-  <div class="query-section">
-    <mat-form-field appearance="outline">
-      <mat-label>Search query</mat-label>
-      <input matInput formControlName="query" required />
-      <mat-error *ngIf="queryForm.get('query').hasError('minlength')">Please enter at least 3 characters</mat-error>
-    </mat-form-field>
-    <mat-error *ngIf="!projectSelected">Please select at least one GitLab project</mat-error>
-  </div>
-  <div>
-    <button
-      mat-raised-button
-      color="primary"
-      *ngIf="!searchProgress; else stopSearching"
-      [disabled]="!projectSelected || queryForm.pristine || queryForm.invalid"
-    >
-      <mat-icon>search</mat-icon>
-      &nbsp;Search
-    </button>
-    <ng-template #stopSearching>
-      <button mat-raised-button color="warn" type="button" (click)="stop.emit()">
-        <mat-icon>stop</mat-icon>
-        &nbsp;Stop
+<div class="container">
+  <form [formGroup]="queryForm" (ngSubmit)="submit()">
+    <div class="query-section">
+      <mat-form-field appearance="outline">
+        <mat-label>Search query</mat-label>
+        <input matInput formControlName="query" required />
+        <mat-error *ngIf="queryForm.get('query').hasError('minlength')">Please enter at least 3 characters</mat-error>
+      </mat-form-field>
+      <mat-error *ngIf="!projectSelected">Please select at least one GitLab project</mat-error>
+    </div>
+    <div>
+      <button
+        mat-flat-button
+        color="primary"
+        *ngIf="!searchProgress; else stopSearching"
+        [disabled]="!projectSelected || queryForm.pristine || queryForm.invalid"
+      >
+        <mat-icon>search</mat-icon>
+        &nbsp;Search
       </button>
-      <div class="progress-count theme-warn-color">{{ searchProgress.done }} / {{ searchProgress.total }}</div>
-    </ng-template>
+      <ng-template #stopSearching>
+        <button mat-flat-button color="warn" type="button" (click)="stop.emit()">
+          <mat-icon>stop</mat-icon>
+          &nbsp;Stop
+        </button>
+      </ng-template>
+    </div>
+  </form>
+  <div class="progress" *ngIf="searchProgress !== null">
+    <mat-progress-bar mode="determinate" [value]="(searchProgress.done / searchProgress.total) * 100"></mat-progress-bar>
+    <span class="progress-count theme-warn-color">{{ searchProgress.done }} / {{ searchProgress.total }}</span>
   </div>
-</form>
-<mat-progress-bar
-  mode="determinate"
-  *ngIf="searchProgress !== null"
-  [value]="(searchProgress.done / searchProgress.total) * 100"
-></mat-progress-bar>
+</div>

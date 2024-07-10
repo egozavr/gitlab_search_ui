@@ -7,6 +7,10 @@ import { ThemeMode } from '../gitlab-config/state/gitlab-config.store';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ThemeToggleComponent {
-  @Input() mode: ThemeMode;
-  @Output() toggleMode = new EventEmitter<void>();
+  icon = 'hdr_auto';
+
+  @Input() set mode(v: ThemeMode) {
+    this.icon = v === 'auto' ? 'hdr_auto' : v === 'dark' ? 'dark_mode' : 'light_mode';
+  }
+  @Output() setMode = new EventEmitter<ThemeMode>();
 }

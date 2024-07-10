@@ -1,0 +1,79 @@
+@use '@angular/material' as mat;
+@use 'sass:map';
+@use 'm3-theme';
+
+@mixin custom-styles-theme($theme) {
+  a:link {
+    color: mat.get-theme-color($theme, primary);
+  }
+
+  a:visited {
+    color: mat.get-theme-color($theme, secondary);
+  }
+
+  a:hover {
+    color: mat.get-theme-color($theme, tertiary);
+  }
+
+  a:active {
+    color: mat.get-theme-color($theme, tertiary);
+  }
+
+  .theme-warn-color {
+    color: mat.get-theme-color($theme, error);
+  }
+
+  .mat-toolbar.secondary {
+    --mat-toolbar-container-background-color: #{mat.get-theme-color($theme, secondary)};
+    --mat-toolbar-container-text-color: #{mat.get-theme-color($theme, on-secondary)};
+  }
+
+  --mat-sidenav-content-background-color: #{mat.get-theme-color($theme, surface-dim)};
+}
+
+@include mat.core();
+@include mat.typography-hierarchy(m3-theme.$dark-theme);
+
+body {
+  @include mat.core-theme(m3-theme.$dark-theme);
+  @include mat.button-theme(m3-theme.$dark-theme);
+  @include mat.card-theme(m3-theme.$dark-theme);
+  @include mat.checkbox-theme(m3-theme.$dark-theme);
+  @include mat.dialog-theme(m3-theme.$dark-theme);
+  @include mat.divider-theme(m3-theme.$dark-theme);
+  @include mat.form-field-theme(m3-theme.$dark-theme);
+  @include mat.icon-theme(m3-theme.$dark-theme);
+  @include mat.input-theme(m3-theme.$dark-theme);
+  @include mat.menu-theme(m3-theme.$dark-theme);
+  @include mat.progress-bar-theme(m3-theme.$dark-theme);
+  @include mat.progress-spinner-theme(m3-theme.$dark-theme);
+  @include mat.slide-toggle-theme(m3-theme.$dark-theme);
+  @include mat.sidenav-theme(m3-theme.$dark-theme);
+  @include mat.snack-bar-theme(m3-theme.$dark-theme);
+  @include mat.toolbar-theme(m3-theme.$dark-theme);
+  @include mat.tree-theme(m3-theme.$dark-theme);
+  @include custom-styles-theme(m3-theme.$dark-theme);
+
+  @media (prefers-color-scheme: light) {
+    &:not(.force-dark-theme) {
+      @include mat.core-color(m3-theme.$light-theme);
+      @include mat.button-color(m3-theme.$light-theme);
+      @include mat.card-color(m3-theme.$light-theme);
+      @include mat.checkbox-color(m3-theme.$light-theme);
+      @include mat.dialog-color(m3-theme.$light-theme);
+      @include mat.divider-color(m3-theme.$light-theme);
+      @include mat.form-field-color(m3-theme.$light-theme);
+      @include mat.icon-color(m3-theme.$light-theme);
+      @include mat.input-color(m3-theme.$light-theme);
+      @include mat.menu-color(m3-theme.$light-theme);
+      @include mat.progress-bar-color(m3-theme.$light-theme);
+      @include mat.progress-spinner-color(m3-theme.$light-theme);
+      @include mat.slide-toggle-color(m3-theme.$light-theme);
+      @include mat.sidenav-color(m3-theme.$light-theme);
+      @include mat.snack-bar-color(m3-theme.$light-theme);
+      @include mat.toolbar-color(m3-theme.$light-theme);
+      @include mat.tree-color(m3-theme.$light-theme);
+      @include custom-styles-theme(m3-theme.$light-theme);
+    }
+  }
+}
