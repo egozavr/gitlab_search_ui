@@ -1,8 +1,11 @@
+.container {
+  padding: 20px;
+  margin-bottom: -4px;
+}
 form {
   display: flex;
   align-items: baseline;
   width: 100%;
-  padding: 20px;
   box-sizing: border-box;
   .mat-mdc-form-field {
     width: 100%;
@@ -13,17 +16,16 @@ form {
   }
 }
 
-.progress-count {
-  padding-top: 6px;
-  text-align: center;
-  font-weight: 500;
+.progress {
+  display: flex;
+  align-items: center;
 }
 
-.mat-mdc-progress-bar {
-  display: block;
-  position: absolute;
-  width: 100%;
-  bottom: 0;
-  left: 0;
-  z-index: 100;
+.progress-count {
+  display: inline-block;
+  width: 96px;
+  font-size: small;
+  font-weight: 500;
+  text-align: end;
+  font-weight: 400;
 }

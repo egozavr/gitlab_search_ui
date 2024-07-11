@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, HostBinding, OnDestroy, OnInit } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { applyTransaction } from '@datorama/akita';
 import { Observable, Subject } from 'rxjs';
@@ -34,7 +35,6 @@ export class AppComponent implements OnInit, OnDestroy {
   themeMode$: Observable<ThemeMode>;
   withArchived$: Observable<boolean>;
 
-  @HostBinding('class.dark-theme') darkStyleClass: boolean;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -45,6 +45,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private searchResultsSrv: SearchResultService,
     private searchResultsQuery: SearchResultQuery,
     private dialog: MatDialog,
+    @Inject(DOCUMENT) private doc: Document,
   ) {
     this.gitlabItems$ = this.searchParamsQuery.selectAll();
     this.gitladDataLoading$ = this.searchParamsQuery.dataLoading();
@@ -58,8 +59,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.themeMode$.pipe(takeUntil(this.destroy$)).subscribe(mode => {
-      this.darkStyleClass = mode === 'dark';
+      if (mode === 'dark') {
+        this.doc.body.classList.add('force-dark-theme');
+      } else {
+        this.doc.body.classList.remove('force-dark-theme');
+      }
     });
+
     this.configQuery
       .selectAll()
       .pipe(take(1), takeUntil(this.destroy$))
@@ -68,6 +74,7 @@ export class AppComponent implements OnInit, OnDestroy {
           this.openConfigSettings();
         }
       });
+
     this.configSrv.updateVersions();
   }
 
@@ -86,13 +93,13 @@ export class AppComponent implements OnInit, OnDestroy {
   openConfigSettings(): void {
     this.dialog.open(GitlabConfigDialogComponent, {
       minWidth: 548,
+      maxWidth: '80vw',
       autoFocus: false,
-      panelClass: this.darkStyleClass ? 'dark-theme' : '',
     });
   }
 
-  toggleThemeMode(): void {
-    this.configSrv.toggleThemeMode();
+  setThemeMode(mode: ThemeMode): void {
+    this.configSrv.setThemeMode(mode);
   }
 
   onWithArchivedChange(ev: boolean): void {

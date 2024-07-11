@@ -1,13 +1,13 @@
-<mat-toolbar color="primary" class="mat-elevation-z6">
-  <button mat-icon-button class="config-button" (click)="openConfigSettings()">
-    <mat-icon>settings</mat-icon>
-  </button>
-  <span>Gitlab Search</span>
-  <span class="spacer"></span>
-  <app-theme-toggle [mode]="themeMode$ | async" (toggleMode)="toggleThemeMode()"></app-theme-toggle>
-</mat-toolbar>
-<main class="theme-base">
-  <aside class="theme-card mat-elevation-z4 mat-typography">
+<mat-sidenav-container autosize>
+  <mat-sidenav mode="side" opened class="with-custom-scrollbar">
+    <div class="sidenav-header">
+      <button mat-icon-button class="config-button" (click)="openConfigSettings()">
+        <mat-icon>settings</mat-icon>
+      </button>
+      <span class="mat-title-large">Gitlab Search</span>
+      <span class="spacer"></span>
+      <app-theme-toggle [mode]="themeMode$ | async" (setMode)="setThemeMode($event)"></app-theme-toggle>
+    </div>
     <app-search-form
       [gitlabConfigs]="gitlabConfigs$ | async"
       [gitlabItems]="gitlabItems$ | async"
@@ -17,16 +17,18 @@
       (projectsSelected)="updateSelectedProjects($event)"
       (withArchivedChange)="onWithArchivedChange($event)"
     ></app-search-form>
-  </aside>
-  <div class="content">
-    <div class="query-form mat-elevation-z2 theme-card">
-      <app-query-form
-        [projectSelected]="projectSelected$ | async"
-        [searchProgress]="searchProgress$ | async"
-        (query)="search($event)"
-        (stop)="onStopSearchEvent()"
-      ></app-query-form>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <div class="search-card-container">
+      <mat-card>
+        <app-query-form
+          [projectSelected]="projectSelected$ | async"
+          [searchProgress]="searchProgress$ | async"
+          (query)="search($event)"
+          (stop)="onStopSearchEvent()"
+        ></app-query-form>
+      </mat-card>
     </div>
     <app-search-results [results]="searchResults$ | async"></app-search-results>
-  </div>
-</main>
+  </mat-sidenav-content>
+</mat-sidenav-container>
