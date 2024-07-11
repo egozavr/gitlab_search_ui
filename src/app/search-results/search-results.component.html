@@ -2,6 +2,6 @@
   <div *ngFor="let result of results" class="result-item">
     <header class="mat-title-medium">{{ result.gitlabURL }} {{ result.projectName }}</header>
     <a [attr.href]="getURL(result)" target="_blank">{{ result.path }}</a>
-    <pre><code>{{ result.data }}</code></pre>
+    <pre class="custom-scrollbar"><code>{{ result.data }}</code></pre>
   </div>
 </mat-card>

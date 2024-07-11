@@ -26,6 +26,21 @@ input.without-arrows[type='number'] {
     margin: 0;
   }
 }
+
+.custom-scrollbar,
+.mat-sidenav.with-custom-scrollbar > .mat-drawer-inner-container {
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    width: 8px;
+    height: 8px;
+    background-color: var(--mat-theme-secondary-container-color);
+    border-radius: 4px;
+  }
+}
+
 html,
 body {
   height: 100%;
