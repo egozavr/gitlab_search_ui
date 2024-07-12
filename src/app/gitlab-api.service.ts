@@ -2,9 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
+import { GitlabConfig, GitlabVersion } from './gitlab-config/state/gitlab-config.model';
 import { Project } from './search-params/state/search-param.model';
 import { RichSearchResult, SearchResultRaw } from './search-result/state/search-result.model';
-import { GitlabConfig, GitlabVersion } from './gitlab-config/state/gitlab-config.model';
 
 export interface WithNext<T> {
   nextURL?: string;

@@ -29,7 +29,6 @@ export class SearchParamsService implements OnDestroy {
           .filter(c => diff.added.has(c.id))
           .map(c => ({
             id: c.id,
-            groups: [],
             projects: [],
           }));
         applyTransaction(() => {
@@ -86,7 +85,7 @@ export class SearchParamsService implements OnDestroy {
   private getGitlabData(gitlabID: string, withArchivedProjects: boolean): Observable<GitlabData> {
     const config = this.configQuery.getEntity(gitlabID);
     if (!config) {
-      return throwError(`no such gitlab in config: ${gitlabID}`);
+      return throwError(() => `no such gitlab in config: ${gitlabID}`);
     }
     const opts: ProjectRequestOptions = {};
     if (withArchivedProjects === false) {

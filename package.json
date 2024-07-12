@@ -1,6 +1,6 @@
 {
   "name": "gitlab-search-ui",
-  "version": "0.4.0",
+  "version": "0.6.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -27,7 +27,7 @@
     "@angular/platform-browser": "^18.0.6",
     "@angular/platform-browser-dynamic": "^18.0.6",
     "@angular/router": "^18.0.6",
-    "@datorama/akita": "^8.0.0",
+    "@datorama/akita": "^8.0.1",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.5"
