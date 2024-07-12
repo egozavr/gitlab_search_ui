@@ -6,14 +6,7 @@ import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree'
 import { BehaviorSubject, Observable, Subject, combineLatest } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, startWith, takeUntil, tap } from 'rxjs/operators';
 import { GitlabConfig } from '../gitlab-config/state/gitlab-config.model';
-import {
-  GitlabData,
-  GitlabNamespace,
-  GitlabProject,
-  Namespace,
-  isGitlabNamespace,
-  isGitlabProject,
-} from '../search-params/state/search-param.model';
+import { GitlabData, GitlabNamespace, GitlabProject, isGitlabNamespace, isGitlabProject } from '../search-params/state/search-param.model';
 import { SelectionModelTrackBy } from './selection-model-track-by.class';
 
 export class GitlabEntityNode {
@@ -25,7 +18,11 @@ export class GitlabEntityFlatNode {
   item: string | GitlabNamespace | GitlabProject;
   level: number;
   expandable: boolean;
+  childrenQty: number | null;
 }
+
+type GitlabEntityValue = { namespaces?: GitlabEntityMap; projects?: GitlabProject[] };
+type GitlabEntityMap = Map<string, GitlabEntityValue>;
 
 @Component({
   selector: 'app-search-form',
@@ -34,10 +31,6 @@ export class GitlabEntityFlatNode {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchFormComponent implements OnInit, OnDestroy {
-  private data$ = new BehaviorSubject<GitlabData[]>([]);
-  private filteredData$: Observable<[GitlabData[], string]>;
-  private destroy$ = new Subject<void>();
-
   @Input() set gitlabItems(items: GitlabData[]) {
     this.clearNotRootNodeSelection();
     this.data$.next(items);
@@ -68,7 +61,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       return node.item;
     }
     if (isGitlabNamespace(node.item)) {
-      return `${node.item.gitlab_id}_ns_${node.item.id}`;
+      return `${node.item.gitlab_id}_ns_${node.item.name}`;
     }
     if (isGitlabProject(node.item)) {
       return `${node.item.gitlab_id}_project_${node.item.id}`;
@@ -80,6 +73,11 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   @Output() withArchivedChange = new EventEmitter<boolean>();
 
   filterCtrl = new FormControl('', Validators.minLength(3));
+
+  private readonly data$ = new BehaviorSubject<GitlabData[]>([]);
+  private filteredData$: Observable<[GitlabData[], string]>;
+  private destroy$ = new Subject<void>();
+  private readonly nsNameSeparator = ' / ' as const;
 
   constructor() {
     this.treeFlattener = new MatTreeFlattener(this.transformer, this.getLevel, this.isExpandable, this.getChildren);
@@ -97,7 +95,9 @@ export class SearchFormComponent implements OnInit, OnDestroy {
         this.nodeSelection.clear();
       }),
     );
+
     this.filteredData$ = combineLatest([this.data$, queries$]).pipe(map(this.filterData));
+
     this.filteredData$.pipe(takeUntil(this.destroy$)).subscribe(([data, query]) => {
       this.dataSource.data = this.getTreeNodes(data);
       const rootNodes = this.treeControl.dataNodes.filter(node => node.level === 0);
@@ -113,48 +113,94 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   private getTreeNodes(datas: GitlabData[]): GitlabEntityNode[] {
     const nodes: GitlabEntityNode[] = [];
     (datas || []).forEach(data => {
-      const projectsByNS = new Map<number, GitlabProject[]>();
-      const nsByID = new Map<number, Namespace>();
-      (data.projects || []).forEach(project => {
-        const nsID = project.namespace.id;
-        if (!projectsByNS.has(nsID)) {
-          projectsByNS.set(nsID, [{ ...project, gitlab_id: data.id, type: 'project' }]);
-        } else {
-          projectsByNS.get(nsID).push({ ...project, gitlab_id: data.id, type: 'project' });
-        }
-        if (!nsByID.has(nsID)) {
-          nsByID.set(nsID, { ...project.namespace });
-        }
-      });
-      const namespaces = Array.from(nsByID.values()).sort((ns1, ns2) => (ns1.name > ns2.name ? 1 : ns1.name < ns2.name ? -1 : 0));
-      const gitlabChildren: GitlabEntityNode[] = (namespaces || []).map(ns => {
-        const nsProjects = projectsByNS.get(ns.id) || [];
-        nsProjects.sort((p1, p2) => (p1.name > p2.name ? 1 : p1.name < p2.name ? -1 : 0));
-        return {
-          item: { ...ns, gitlab_id: data.id, type: 'namespace' },
-          children: nsProjects.map(project => ({
-            item: project,
-            children: [],
-          })),
-        };
-      });
-      nodes.push({
-        item: data.id,
-        children: gitlabChildren,
-      });
+      const groupedByNS = this.groupProjectByNamespaces(data);
+      const node = this.convertGroupedByNsToNode(data.id, groupedByNS);
+      nodes.push(node);
     });
     return nodes;
+  }
+
+  private groupProjectByNamespaces(data: GitlabData): GitlabEntityMap {
+    const res: GitlabEntityMap = new Map();
+    (data.projects || []).forEach(project => {
+      const nsNames = project.name_with_namespace.split(this.nsNameSeparator).slice(0, -1);
+      const gitlabProject: GitlabProject = { gitlab_id: data.id, type: 'project', ...project };
+
+      let currentNsMap = res;
+      nsNames.forEach((nsName, i) => {
+        const isLast = i === nsNames.length - 1;
+        if (!currentNsMap.has(nsName)) {
+          if (isLast) {
+            currentNsMap.set(nsName, { projects: [gitlabProject] });
+            return;
+          }
+          const nextNsMap = new Map();
+          currentNsMap.set(nsName, { namespaces: nextNsMap });
+          currentNsMap = nextNsMap;
+          return;
+        }
+        const currentNs = currentNsMap.get(nsName);
+        if (isLast) {
+          (currentNs.projects || []).push(gitlabProject);
+          return;
+        }
+        if (!currentNs.namespaces) {
+          currentNs.namespaces = new Map();
+        }
+        currentNsMap = currentNs.namespaces;
+      });
+    });
+    return res;
+  }
+
+  private convertGroupedByNsToNode(gitlabId: string, grouped: GitlabEntityMap): GitlabEntityNode {
+    const root: GitlabEntityNode = { item: gitlabId, children: [] };
+    const rootGroup: GitlabEntityMap = new Map([['root', { namespaces: grouped }]]);
+    const treeStack = [{ node: root, parent: rootGroup, nsName: 'root' }];
+
+    while (treeStack.length > 0) {
+      const currentTreeNode = treeStack.pop();
+      const child = currentTreeNode.parent.get(currentTreeNode.nsName);
+      const childrenNodes = this.putToNode(gitlabId, currentTreeNode.node, child);
+      treeStack.push(...childrenNodes);
+    }
+    return root;
+  }
+
+  private putToNode(
+    gitlabId: string,
+    node: GitlabEntityNode,
+    val: GitlabEntityValue,
+  ): { node: GitlabEntityNode; nsName: string; parent: GitlabEntityMap }[] {
+    const res: { node: GitlabEntityNode; nsName: string; parent: GitlabEntityMap }[] = [];
+    if (val.namespaces?.size) {
+      for (const nsName of [...val.namespaces.keys()].sort()) {
+        const childNode: GitlabEntityNode = { item: this.getGitlabNamespaceByName(gitlabId, nsName), children: [] };
+        const parent = val.namespaces;
+        res.push({ node: childNode, nsName, parent });
+        node.children.push(childNode);
+      }
+    }
+    if (Array.isArray(val.projects)) {
+      node.children.push(...val.projects.sort((a, b) => (a.name > b.name ? 1 : -1)).map(project => ({ item: project, children: [] })));
+    }
+    return res;
+  }
+
+  private getGitlabNamespaceByName(gitlabId: string, name: string): GitlabNamespace {
+    return { gitlab_id: gitlabId, type: 'namespace', name };
   }
 
   /**
    * Transformer to convert nested node to flat node. Record the nodes in maps for later use.
    */
-  private transformer = (node: GitlabEntityNode, level: number) => {
+  private transformer = (node: GitlabEntityNode, level: number): GitlabEntityFlatNode => {
     const existingNode = this.nestedNodeMap.get(node);
     const flatNode = existingNode && existingNode.item === node.item ? existingNode : new GitlabEntityFlatNode();
     flatNode.item = node.item;
     flatNode.level = level;
     flatNode.expandable = !!node.children?.length;
+    flatNode.childrenQty = node.children?.length || null;
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);
     return flatNode;
@@ -250,14 +296,14 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  displayNode(node: GitlabEntityFlatNode): { value: string; isLink: boolean } {
+  displayNode(node: GitlabEntityFlatNode): { value: string; isLink: boolean; qty: number | null } {
     if (typeof node.item === 'string') {
-      return { value: this.gitlabUrlByID[node.item], isLink: true };
+      return { value: this.gitlabUrlByID[node.item], isLink: true, qty: node.childrenQty };
     }
     if (isGitlabNamespace(node.item) || isGitlabProject(node.item)) {
-      return { value: node.item.name, isLink: false };
+      return { value: node.item.name, isLink: false, qty: node.childrenQty };
     }
-    return { value: '', isLink: false };
+    return { value: '', isLink: false, qty: null };
   }
 
   getNodeDataLoading(node: GitlabEntityFlatNode): boolean {

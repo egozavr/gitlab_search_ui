@@ -34,8 +34,9 @@ export interface GitlabProject extends Project {
   type: 'project';
 }
 
-export interface GitlabNamespace extends Namespace {
+export interface GitlabNamespace {
   gitlab_id: string;
+  name: string;
   type: 'namespace';
 }
 

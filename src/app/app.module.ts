@@ -1,15 +1,16 @@
 import { CdkTreeModule } from '@angular/cdk/tree';
 import { CommonModule } from '@angular/common';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import { ENVIRONMENT_INITIALIZER, inject, NgModule, NgZone } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
+import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -21,8 +22,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTreeModule } from '@angular/material/tree';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { persistState } from '@datorama/akita';
-import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
+import { akitaDevtools, persistState } from '@datorama/akita';
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { GitlabConfigDialogComponent } from './gitlab-config/gitlab-config-dialog/gitlab-config-dialog.component';
@@ -54,6 +54,7 @@ const storage = persistState({
     BrowserModule,
     CdkTreeModule,
     CommonModule,
+    MatBadgeModule,
     MatButtonModule,
     MatCardModule,
     MatSidenavModule,
@@ -71,7 +72,6 @@ const storage = persistState({
     MatToolbarModule,
     MatTreeModule,
     ReactiveFormsModule,
-    environment.production ? [] : AkitaNgDevtools.forRoot(),
   ],
   providers: [
     {
@@ -79,7 +79,21 @@ const storage = persistState({
       useValue: storage,
     },
     { provide: HTTP_INTERCEPTORS, useClass: HttpErrorInterceptor, multi: true },
+    {
+      provide: ENVIRONMENT_INITIALIZER,
+      multi: true,
+      useFactory() {
+        return () => {
+          console.log(environment.production);
+          return environment.production ? null : akitaDevtools(inject(NgZone));
+        };
+      },
+    },
     provideHttpClient(withInterceptorsFromDi()),
   ],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(iconRegistry: MatIconRegistry) {
+    iconRegistry.setDefaultFontSetClass('material-symbols-outlined');
+  }
+}

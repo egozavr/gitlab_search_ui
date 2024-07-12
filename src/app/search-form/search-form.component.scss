@@ -10,13 +10,44 @@
   display: flex;
   height: 24px;
   align-items: center;
-  .mat-mdc-progress-spinner {
-    margin: 0 12px;
+  .label {
+    color: var(--mat-checkbox-label-text-color);
+    font-family: var(--mat-checkbox-label-text-font);
+    line-height: var(--mat-checkbox-label-text-line-height);
+    font-size: var(--mat-checkbox-label-text-size);
+    letter-spacing: var(--mat-checkbox-label-text-tracking);
+    font-weight: var(--mat-checkbox-label-text-weight);
   }
+  .mat-mdc-progress-spinner {
+    margin: 0 10px 0 6px;
+  }
+}
+
+.folder-button {
+  color: var(--mat-theme-primary-color);
 }
 
 .mat-icon[matprefix] {
   margin-right: 10px;
+}
+
+.mat-mdc-checkbox {
+  .badge {
+    display: inline-block;
+    line-height: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 10px;
+    background-color: var(--mat-theme-secondary-container-color);
+    color: var(--mat-theme-on-secondary-container-color);
+    opacity: 0.5;
+  }
+  &:hover {
+    .badge {
+      opacity: 1;
+    }
+  }
 }
 
 .gitlab-name {

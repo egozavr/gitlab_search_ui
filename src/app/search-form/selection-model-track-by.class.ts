@@ -1,5 +1,5 @@
 /**
- * Otiginal class: https://github.com/angular/material2/blob/master/src/cdk/collections/selection.ts
+ * Original class: https://github.com/angular/material2/blob/master/src/cdk/collections/selection.ts
  * SelectionModelTrackBy implements interface of cdk SelectionModel but allows to set trackBy for selections.
  * Key difference between stogage data structures:
  * cdk SelectionModel _selection is Set<T>, SelectionModelTrackBy _selection is Map<K, T>.

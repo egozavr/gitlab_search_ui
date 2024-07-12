@@ -24,7 +24,9 @@
   }
 
   --mat-sidenav-content-background-color: #{mat.get-theme-color($theme, surface-dim)};
+  --mat-theme-primary-color: #{mat.get-theme-color($theme, primary)};
   --mat-theme-secondary-container-color: #{mat.get-theme-color($theme, secondary-container)};
+  --mat-theme-on-secondary-container-color: #{mat.get-theme-color($theme, on-secondary-container)};
 }
 
 @include mat.core();
