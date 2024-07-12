@@ -1,24 +1,22 @@
 import { Injectable } from '@angular/core';
 import { EntityState, EntityStore, EntityUIStore, StoreConfig } from '@datorama/akita';
-import { GitlabData, SearchProject } from './search-param.model';
-export interface GitlabDataUI {
-  isLoading: boolean;
-}
+import { GitlabData, GitlabDataUI, SearchProject } from './gitlab-projects.model';
 
-export interface SearchParamUIState extends EntityState<GitlabDataUI> {}
-export interface SearchParamsState extends EntityState<GitlabData> {
+export interface GitlabProjectsState extends EntityState<GitlabData> {
   searchProjects: SearchProject[];
 }
 
+export interface GitlabProjectsUIState extends EntityState<GitlabDataUI> {}
+
 @Injectable({ providedIn: 'root' })
 @StoreConfig({
-  name: 'search-params',
+  name: 'gitlab-projects',
   cache: {
     ttl: 30 * 60 * 1000,
   },
 })
-export class SearchParamsStore extends EntityStore<SearchParamsState> {
-  ui!: EntityUIStore<SearchParamUIState>;
+export class GitlabProjectsStore extends EntityStore<GitlabProjectsState> {
+  ui!: EntityUIStore<GitlabProjectsUIState>;
   constructor() {
     super({
       searchProjects: [],

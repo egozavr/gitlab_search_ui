@@ -5,22 +5,22 @@ import { finalize, map, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { GitlabApiService, ProjectRequestOptions } from 'src/app/gitlab-api.service';
 import { GitlabConfigQuery } from 'src/app/gitlab-config/state/gitlab-config.query';
 import { diffSets } from 'src/app/utils/array-diff';
-import { GitlabData, SearchProject } from './search-param.model';
-import { SearchParamsQuery } from './search-params.query';
-import { SearchParamsStore } from './search-params.store';
+import { GitlabData, SearchProject } from './gitlab-projects.model';
+import { GitlabProjectsQuery } from './gitlab-projects.query';
+import { GitlabProjectsStore } from './gitlab-projects.store';
 
 @Injectable({ providedIn: 'root' })
-export class SearchParamsService implements OnDestroy {
+export class GitlabProjectsService implements OnDestroy {
   private destroy$ = new Subject<void>();
   constructor(
-    private searchParamsStore: SearchParamsStore,
-    private searchParamsQuery: SearchParamsQuery,
+    private gitlabProjectsStore: GitlabProjectsStore,
+    private gitlabProjectsQuery: GitlabProjectsQuery,
     private configQuery: GitlabConfigQuery,
     private gitlabApi: GitlabApiService,
   ) {
     this.configQuery
       .selectAll()
-      .pipe(withLatestFrom(this.searchParamsQuery.selectAll()), takeUntil(this.destroy$))
+      .pipe(withLatestFrom(this.gitlabProjectsQuery.selectAll()), takeUntil(this.destroy$))
       .subscribe(([configs, gitlabDataItems]) => {
         const configIDs = new Set(configs.map(c => c.id));
         const gitlabIDs = new Set(gitlabDataItems.map(item => item.id));
@@ -32,16 +32,16 @@ export class SearchParamsService implements OnDestroy {
             projects: [],
           }));
         applyTransaction(() => {
-          this.searchParamsStore.add(newGitlabItems);
-          this.searchParamsStore.remove(Array.from(diff.removed));
+          this.gitlabProjectsStore.add(newGitlabItems);
+          this.gitlabProjectsStore.remove(Array.from(diff.removed));
         });
       });
   }
 
   updateGitlabData(gitlabID: string): void {
-    const data = this.searchParamsQuery.getEntity(gitlabID);
-    if (!data || !data?.projects?.length || !this.searchParamsQuery.getHasCache()) {
-      this.searchParamsStore.ui.update(gitlabID, state => ({
+    const data = this.gitlabProjectsQuery.getEntity(gitlabID);
+    if (!data || !data?.projects?.length || !this.gitlabProjectsQuery.getHasCache()) {
+      this.gitlabProjectsStore.ui.update(gitlabID, state => ({
         ...state,
         isLoading: true,
       }));
@@ -50,12 +50,12 @@ export class SearchParamsService implements OnDestroy {
         .pipe(
           tap(loadedData => {
             applyTransaction(() => {
-              this.searchParamsStore.update(gitlabID, loadedData);
-              this.searchParamsStore.setHasCache(true, { restartTTL: true });
+              this.gitlabProjectsStore.update(gitlabID, loadedData);
+              this.gitlabProjectsStore.setHasCache(true, { restartTTL: true });
             });
           }),
           finalize(() => {
-            this.searchParamsStore.ui.update(gitlabID, state => ({
+            this.gitlabProjectsStore.ui.update(gitlabID, state => ({
               ...state,
               isLoading: false,
             }));
@@ -67,11 +67,11 @@ export class SearchParamsService implements OnDestroy {
   }
 
   resetDataCache(): void {
-    this.searchParamsStore.setHasCache(false);
+    this.gitlabProjectsStore.setHasCache(false);
   }
 
   setSearchProjects(projects: SearchProject[]): void {
-    this.searchParamsStore.update(state => ({
+    this.gitlabProjectsStore.update(state => ({
       ...state,
       searchProjects: projects,
     }));

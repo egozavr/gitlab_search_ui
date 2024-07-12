@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { GitlabConfig, GitlabVersion } from './gitlab-config/state/gitlab-config.model';
-import { Project } from './search-params/state/search-param.model';
+import { Project } from './gitlab-projects/state/gitlab-projects.model';
 import { RichSearchResult, SearchResultRaw } from './search-result/state/search-result.model';
 
 export interface WithNext<T> {

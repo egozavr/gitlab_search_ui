@@ -6,7 +6,13 @@ import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree'
 import { BehaviorSubject, Observable, Subject, combineLatest } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, startWith, takeUntil, tap } from 'rxjs/operators';
 import { GitlabConfig } from '../gitlab-config/state/gitlab-config.model';
-import { GitlabData, GitlabNamespace, GitlabProject, isGitlabNamespace, isGitlabProject } from '../search-params/state/search-param.model';
+import {
+  GitlabData,
+  GitlabNamespace,
+  GitlabProject,
+  isGitlabNamespace,
+  isGitlabProject,
+} from '../gitlab-projects/state/gitlab-projects.model';
 import { SelectionModelTrackBy } from './selection-model-track-by.class';
 
 export class GitlabEntityNode {
