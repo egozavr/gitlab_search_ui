@@ -9,9 +9,9 @@ import { GitlabConfig } from './gitlab-config/state/gitlab-config.model';
 import { GitlabConfigQuery } from './gitlab-config/state/gitlab-config.query';
 import { GitlabConfigService } from './gitlab-config/state/gitlab-config.service';
 import { ThemeMode } from './gitlab-config/state/gitlab-config.store';
-import { GitlabData, GitlabProject } from './search-params/state/search-param.model';
-import { SearchParamsQuery } from './search-params/state/search-params.query';
-import { SearchParamsService } from './search-params/state/search-params.service';
+import { GitlabData, GitlabProject } from './gitlab-projects/state/gitlab-projects.model';
+import { GitlabProjectsQuery } from './gitlab-projects/state/gitlab-projects.query';
+import { GitlabProjectsService } from './gitlab-projects/state/gitlab-projects.service';
 import { SearchResult } from './search-result/state/search-result.model';
 import { SearchResultQuery } from './search-result/state/search-result.query';
 import { SearchResultService } from './search-result/state/search-result.service';
@@ -39,20 +39,20 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(
     private configSrv: GitlabConfigService,
-    private searchParamsSrv: SearchParamsService,
+    private gitlabProjectsSrv: GitlabProjectsService,
     private configQuery: GitlabConfigQuery,
-    private searchParamsQuery: SearchParamsQuery,
+    private gitlabProjectsQuery: GitlabProjectsQuery,
     private searchResultsSrv: SearchResultService,
     private searchResultsQuery: SearchResultQuery,
     private dialog: MatDialog,
     @Inject(DOCUMENT) private doc: Document,
   ) {
-    this.gitlabItems$ = this.searchParamsQuery.selectAll();
-    this.gitladDataLoading$ = this.searchParamsQuery.dataLoading();
+    this.gitlabItems$ = this.gitlabProjectsQuery.selectAll();
+    this.gitladDataLoading$ = this.gitlabProjectsQuery.dataLoading();
     this.gitlabConfigs$ = this.configQuery.selectAll();
     this.searchResults$ = this.searchResultsQuery.selectAll();
     this.searchProgress$ = this.searchResultsQuery.selectProgress();
-    this.projectSelected$ = this.searchParamsQuery.projectSelected();
+    this.projectSelected$ = this.gitlabProjectsQuery.projectSelected();
     this.themeMode$ = this.configQuery.selectThemeMode();
     this.withArchived$ = this.configQuery.selectWithArchivedFilter();
   }
@@ -83,11 +83,15 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   updateGitlabData(gitlabID: string): void {
-    this.searchParamsSrv.updateGitlabData(gitlabID);
+    this.gitlabProjectsSrv.updateGitlabData(gitlabID);
+  }
+
+  reloadGitlabData(gitlabID: string): void {
+    this.gitlabProjectsSrv.updateGitlabData(gitlabID, true);
   }
 
   updateSelectedProjects(projects: GitlabProject[]): void {
-    this.searchParamsSrv.setSearchProjects(projects.map(p => ({ gitlab_id: p.gitlab_id, project_id: p.id })));
+    this.gitlabProjectsSrv.setSearchProjects(projects.map(p => ({ gitlab_id: p.gitlab_id, project_id: p.id })));
   }
 
   openConfigSettings(): void {
@@ -105,9 +109,9 @@ export class AppComponent implements OnInit, OnDestroy {
   onWithArchivedChange(ev: boolean): void {
     applyTransaction(() => {
       this.configSrv.setFilter({ withArchivedProjects: ev });
-      this.searchParamsSrv.resetDataCache();
-      for (const gitlabID of this.searchParamsQuery.getSelectedGitLabs()) {
-        this.searchParamsSrv.updateGitlabData(gitlabID);
+      this.gitlabProjectsSrv.resetDataCache();
+      for (const gitlabID of this.gitlabProjectsQuery.getSelectedGitLabs()) {
+        this.gitlabProjectsSrv.updateGitlabData(gitlabID);
       }
     });
   }

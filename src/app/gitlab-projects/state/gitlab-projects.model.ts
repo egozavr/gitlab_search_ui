@@ -2,7 +2,7 @@ export interface Namespace {
   id: number;
   name: string;
   path: string;
-  kind: 'user' | 'gnpderoup';
+  kind: 'user' | 'group';
   full_path: string;
   parent_id: number | null;
   web_url: string;
@@ -26,7 +26,12 @@ export interface Project {
 
 export interface GitlabData {
   id: string;
+  loadDt: string | null;
   projects: Project[];
+}
+
+export interface GitlabDataUI {
+  isLoading: boolean;
 }
 
 export interface GitlabProject extends Project {

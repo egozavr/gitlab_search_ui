@@ -6,7 +6,13 @@ import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree'
 import { BehaviorSubject, Observable, Subject, combineLatest } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, startWith, takeUntil, tap } from 'rxjs/operators';
 import { GitlabConfig } from '../gitlab-config/state/gitlab-config.model';
-import { GitlabData, GitlabNamespace, GitlabProject, isGitlabNamespace, isGitlabProject } from '../search-params/state/search-param.model';
+import {
+  GitlabData,
+  GitlabNamespace,
+  GitlabProject,
+  isGitlabNamespace,
+  isGitlabProject,
+} from '../gitlab-projects/state/gitlab-projects.model';
 import { SelectionModelTrackBy } from './selection-model-track-by.class';
 
 export class GitlabEntityNode {
@@ -34,6 +40,10 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   @Input() set gitlabItems(items: GitlabData[]) {
     this.clearNotRootNodeSelection();
     this.data$.next(items);
+    this.loadDtById = {};
+    items.forEach(item => {
+      this.loadDtById[item.id] = item.loadDt;
+    });
   }
 
   @Input() dataLoading: { [gitlabID: string]: boolean };
@@ -48,6 +58,11 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
   @Input() withArchived: boolean;
 
+  @Output() gitlabSelected = new EventEmitter<string>();
+  @Output() reloadGitlab = new EventEmitter<string>();
+  @Output() projectsSelected = new EventEmitter<GitlabProject[]>();
+  @Output() withArchivedChange = new EventEmitter<boolean>();
+
   flatNodeMap = new Map<GitlabEntityFlatNode, GitlabEntityNode>();
   nestedNodeMap = new Map<GitlabEntityNode, GitlabEntityFlatNode>();
   selectedParent: GitlabEntityFlatNode | null = null;
@@ -55,6 +70,8 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   treeControl: FlatTreeControl<GitlabEntityFlatNode>;
   treeFlattener: MatTreeFlattener<GitlabEntityNode, GitlabEntityFlatNode>;
   dataSource: MatTreeFlatDataSource<GitlabEntityNode, GitlabEntityFlatNode>;
+
+  loadDtById: { [gitlabId: string]: string | null } = {};
 
   nodeSelection = new SelectionModelTrackBy<GitlabEntityFlatNode, string>(node => {
     if (typeof node.item === 'string') {
@@ -67,10 +84,6 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       return `${node.item.gitlab_id}_project_${node.item.id}`;
     }
   }, true);
-
-  @Output() gitlabSelected = new EventEmitter<string>();
-  @Output() projectsSelected = new EventEmitter<GitlabProject[]>();
-  @Output() withArchivedChange = new EventEmitter<boolean>();
 
   filterCtrl = new FormControl('', Validators.minLength(3));
 
@@ -296,14 +309,14 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  displayNode(node: GitlabEntityFlatNode): { value: string; isLink: boolean; qty: number | null } {
+  displayNode(node: GitlabEntityFlatNode): { value: string; isLink: boolean; qty: number | null; id: string | null } {
     if (typeof node.item === 'string') {
-      return { value: this.gitlabUrlByID[node.item], isLink: true, qty: node.childrenQty };
+      return { value: this.gitlabUrlByID[node.item], isLink: true, qty: node.childrenQty, id: node.item };
     }
     if (isGitlabNamespace(node.item) || isGitlabProject(node.item)) {
-      return { value: node.item.name, isLink: false, qty: node.childrenQty };
+      return { value: node.item.name, isLink: false, qty: node.childrenQty, id: null };
     }
-    return { value: '', isLink: false, qty: null };
+    return { value: '', isLink: false, qty: null, id: null };
   }
 
   getNodeDataLoading(node: GitlabEntityFlatNode): boolean {
@@ -335,6 +348,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     return [
       datas.map(data => ({
         id: data.id,
+        loadDt: data.loadDt,
         projects: data.projects.filter(project => project.name_with_namespace.toLowerCase().includes(query)),
       })),
       query,

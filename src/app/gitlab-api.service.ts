@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { map, mergeMap } from 'rxjs/operators';
+import { catchError, map, mergeMap } from 'rxjs/operators';
 import { GitlabConfig, GitlabVersion } from './gitlab-config/state/gitlab-config.model';
-import { Project } from './search-params/state/search-param.model';
+import { Project } from './gitlab-projects/state/gitlab-projects.model';
 import { RichSearchResult, SearchResultRaw } from './search-result/state/search-result.model';
 
 export interface WithNext<T> {
@@ -83,14 +83,18 @@ export class GitlabApiService {
           });
 
       return src$.pipe(
-        mergeMap(resp => {
-          const projects = resp.body;
+        map(resp => {
           const linkHeader = resp.headers.get('Link') || resp.headers.get('Links');
           const nextLink = this.parseLink(linkHeader);
-          if (nextLink === null) {
+          return { projects: resp.body, nextLink };
+        }),
+        catchError(() => of<{ projects: Project[]; nextLink: string | null }>({ projects: [], nextLink: null })),
+        mergeMap(data => {
+          const projects = data.projects;
+          if (data.nextLink === null) {
             return of(projects);
           }
-          return req(nextLink).pipe(map(data => data.concat(projects)));
+          return req(data.nextLink).pipe(map(data => data.concat(projects)));
         }),
       );
     };
@@ -142,18 +146,18 @@ export class GitlabApiService {
   }
 
   private parseVersion(version: GitlabVersion): { major: number; minor: number; patch: number } | null {
-    const re = /^(\d+)\.(\d+)\.(\d+)/;
     if (!version?.version) {
       return null;
     }
+    const re = /^(\d+)\.(\d+)\.(\d+)/;
     const match = version.version.match(re);
-    if (!match || !match.groups) {
+    if (!match) {
       return null;
     }
     return {
-      major: parseInt(match.groups[0], 10),
-      minor: parseInt(match.groups[1], 10),
-      patch: parseInt(match.groups[2], 10),
+      major: parseInt(match[1], 10),
+      minor: parseInt(match[2], 10),
+      patch: parseInt(match[3], 10),
     };
   }
 

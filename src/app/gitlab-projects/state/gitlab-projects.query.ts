@@ -2,14 +2,14 @@ import { Injectable } from '@angular/core';
 import { EntityUIQuery, QueryEntity } from '@datorama/akita';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { GitlabProject, Project } from './search-param.model';
-import { SearchParamsState, SearchParamsStore, SearchParamUIState } from './search-params.store';
+import { Project } from './gitlab-projects.model';
+import { GitlabProjectsState, GitlabProjectsStore, GitlabProjectsUIState } from './gitlab-projects.store';
 
 @Injectable({ providedIn: 'root' })
-export class SearchParamsQuery extends QueryEntity<SearchParamsState> {
-  ui: EntityUIQuery<SearchParamUIState>;
+export class GitlabProjectsQuery extends QueryEntity<GitlabProjectsState> {
+  ui: EntityUIQuery<GitlabProjectsUIState>;
 
-  constructor(protected store: SearchParamsStore) {
+  constructor(protected store: GitlabProjectsStore) {
     super(store);
     this.createUIQuery();
   }
@@ -32,7 +32,7 @@ export class SearchParamsQuery extends QueryEntity<SearchParamsState> {
         const res: { [gitlabID: string]: boolean } = {};
         for (const gitlabID in uiState) {
           if (uiState.hasOwnProperty(gitlabID)) {
-            res[gitlabID] = uiState[gitlabID].isLoading;
+            res[gitlabID] = uiState[gitlabID]?.isLoading ?? false;
           }
         }
         return res;

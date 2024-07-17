@@ -7,7 +7,7 @@ import { RateLimitWaitEvent } from 'src/app/gitlab-config/rate-limit-controller.
 import { GitlabConfig } from 'src/app/gitlab-config/state/gitlab-config.model';
 import { GitlabConfigQuery } from 'src/app/gitlab-config/state/gitlab-config.query';
 import { GitlabConfigService } from 'src/app/gitlab-config/state/gitlab-config.service';
-import { SearchParamsQuery } from 'src/app/search-params/state/search-params.query';
+import { GitlabProjectsQuery } from 'src/app/gitlab-projects/state/gitlab-projects.query';
 import { RichSearchResult, SearchResult, SearchResultRaw } from './search-result.model';
 import { SearchResultStore } from './search-result.store';
 
@@ -21,11 +21,11 @@ export class SearchResultService implements OnDestroy {
     private gitlabApi: GitlabApiService,
     private configQuery: GitlabConfigQuery,
     private configSrv: GitlabConfigService,
-    private paramQuery: SearchParamsQuery,
+    private gitlabProjectsQuery: GitlabProjectsQuery,
   ) {}
 
   search(query: string): void {
-    const { searchProjects } = this.paramQuery.getValue();
+    const { searchProjects } = this.gitlabProjectsQuery.getValue();
     if (!query || !Array.isArray(searchProjects) || searchProjects.length === 0) {
       return;
     }
@@ -105,7 +105,7 @@ export class SearchResultService implements OnDestroy {
 
   private getSearchRequest(config: GitlabConfig, projectID: number, query: string): Observable<SearchResultRaw[]> {
     return this.gitlabApi.searchProjectBlobs(config, projectID, query).pipe(
-      withLatestFrom(this.paramQuery.selectEntity(config.id)),
+      withLatestFrom(this.gitlabProjectsQuery.selectEntity(config.id)),
       map(([results, params]) => {
         const project = params.projects.find(proj => proj.id === projectID);
         results.forEach(result => {
@@ -119,7 +119,7 @@ export class SearchResultService implements OnDestroy {
         return results;
       }),
       catchError(err => {
-        const project = this.paramQuery.getProjectByIDs(config.id, projectID);
+        const project = this.gitlabProjectsQuery.getProjectByIDs(config.id, projectID);
         console.warn(
           `Error during search in project ${project.name_with_namespace}, url ${project.web_url}: ${err.message || err.error || err}`,
         );
