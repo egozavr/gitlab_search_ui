@@ -8,9 +8,13 @@ import { SearchResult } from '../search-result/state/search-result.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchResultsComponent {
-  @Input() results: SearchResult[];
+  @Input({ required: true }) results: SearchResult[];
+  @Input({ required: true }) query: string;
 
   getURL(result: SearchResult): string {
-    return `${result.projectURL}/blob/${result.ref}/${result.path}#L${result.startline}`;
+    const lines = result.data.split('\n');
+    const lineIndex = lines.findIndex(line => line.toLowerCase().includes(this.query.toLowerCase()));
+    const lineNumber = result.startline + (lineIndex !== -1 ? lineIndex : 0);
+    return `${result.projectURL}/blob/${result.ref}/${result.path}#L${lineNumber}`;
   }
 }

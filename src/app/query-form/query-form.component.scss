@@ -7,12 +7,13 @@ form {
   align-items: baseline;
   width: 100%;
   box-sizing: border-box;
+  min-width: 440px;
   .mat-mdc-form-field {
     width: 100%;
   }
   .query-section {
     flex: 1 0 auto;
-    padding-right: 20px;
+    padding-right: 16px;
   }
 }
 

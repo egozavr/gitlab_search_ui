@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { applyTransaction, guid } from '@datorama/akita';
 import { concat, forkJoin, merge, Observable, of, Subject } from 'rxjs';
-import { catchError, finalize, map, mapTo, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, finalize, map, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { GitlabApiService } from 'src/app/gitlab-api.service';
 import { RateLimitWaitEvent } from 'src/app/gitlab-config/rate-limit-controller.class';
 import { GitlabConfig } from 'src/app/gitlab-config/state/gitlab-config.model';
@@ -52,6 +52,7 @@ export class SearchResultService implements OnDestroy {
               if (!(resultsOrEvent instanceof RateLimitWaitEvent)) {
                 applyTransaction(() => {
                   this.searchResultStore.setProrgress({ done: ++projectSearched, total: searchProjects.length });
+                  this.searchResultStore.update({ query });
                   this.searchResultStore.upsertMany(
                     [].concat(...resultsOrEvent).map((result: SearchResultRaw) => ({ ...result, resultID: guid() })),
                     { loading: true },
@@ -59,7 +60,7 @@ export class SearchResultService implements OnDestroy {
                 });
               }
             }),
-            mapTo(null),
+            map(() => null),
           );
         }),
       ),

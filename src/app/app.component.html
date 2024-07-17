@@ -30,6 +30,6 @@
         ></app-query-form>
       </mat-card>
     </div>
-    <app-search-results [results]="searchResults$ | async"></app-search-results>
+    <app-search-results [results]="searchResults$ | async" [query]="searchQuery$ | async"></app-search-results>
   </mat-sidenav-content>
 </mat-sidenav-container>
