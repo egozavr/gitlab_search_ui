@@ -34,6 +34,7 @@ export class AppComponent implements OnInit, OnDestroy {
   projectSelected$: Observable<boolean>;
   themeMode$: Observable<ThemeMode>;
   withArchived$: Observable<boolean>;
+  searchQuery$: Observable<string>;
 
   private destroy$ = new Subject<void>();
 
@@ -52,6 +53,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.gitlabConfigs$ = this.configQuery.selectAll();
     this.searchResults$ = this.searchResultsQuery.selectAll();
     this.searchProgress$ = this.searchResultsQuery.selectProgress();
+    this.searchQuery$ = this.searchResultsQuery.select(state => state.query);
     this.projectSelected$ = this.gitlabProjectsQuery.projectSelected();
     this.themeMode$ = this.configQuery.selectThemeMode();
     this.withArchived$ = this.configQuery.selectWithArchivedFilter();

@@ -8,6 +8,7 @@ export interface SearchProgress {
 }
 
 export interface SearchResultState extends EntityState<SearchResult> {
+  query: string;
   ui: {
     progress: SearchProgress | null;
   };
