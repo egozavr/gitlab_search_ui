@@ -86,6 +86,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.gitlabProjectsSrv.updateGitlabData(gitlabID);
   }
 
+  reloadGitlabData(gitlabID: string): void {
+    this.gitlabProjectsSrv.updateGitlabData(gitlabID, true);
+  }
+
   updateSelectedProjects(projects: GitlabProject[]): void {
     this.gitlabProjectsSrv.setSearchProjects(projects.map(p => ({ gitlab_id: p.gitlab_id, project_id: p.id })));
   }

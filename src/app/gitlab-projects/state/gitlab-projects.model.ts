@@ -26,6 +26,7 @@ export interface Project {
 
 export interface GitlabData {
   id: string;
+  loadDt: string | null;
   projects: Project[];
 }
 

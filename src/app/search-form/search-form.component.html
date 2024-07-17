@@ -52,12 +52,16 @@
 
 <ng-template #nodeTmpl let-displayed>
   <ng-container *ngIf="displayed.isLink; else noLink">
-    <span class="gitlab-name">
-      <span>{{ displayed.value }}</span>
+    <div class="gitlab-name-label">
+      <div class="load-dt mat-body-small">{{ loadDtById?.[displayed.id] | date: 'yyyy-MM-dd HH:mm:ss' }}</div>
       <a [attr.href]="displayed.value" target="_blank">
-        <mat-icon>link</mat-icon>
+        {{ displayed.value }}
       </a>
-    </span>
+      <button mat-button *ngIf="displayed.id" [disabled]="dataLoading?.[displayed.id]" (click)="reloadGitlab.emit(displayed.id)">
+        <mat-icon>refresh</mat-icon>
+        reload
+      </button>
+    </div>
   </ng-container>
   <ng-template #noLink>
     {{ displayed.value }}

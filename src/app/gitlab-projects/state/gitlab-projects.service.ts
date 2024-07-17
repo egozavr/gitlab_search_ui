@@ -29,6 +29,7 @@ export class GitlabProjectsService implements OnDestroy {
           .filter(c => diff.added.has(c.id))
           .map(c => ({
             id: c.id,
+            loadDt: null,
             projects: [],
           }));
         applyTransaction(() => {
@@ -38,13 +39,16 @@ export class GitlabProjectsService implements OnDestroy {
       });
   }
 
-  updateGitlabData(gitlabID: string): void {
+  updateGitlabData(gitlabID: string, force?: boolean): void {
     const data = this.gitlabProjectsQuery.getEntity(gitlabID);
-    if (!data || !data?.projects?.length || !this.gitlabProjectsQuery.getHasCache()) {
-      this.gitlabProjectsStore.ui.update(gitlabID, state => ({
-        ...state,
-        isLoading: true,
-      }));
+    if (force === true || !data || !data?.projects?.length || !this.gitlabProjectsQuery.getHasCache()) {
+      applyTransaction(() => {
+        this.gitlabProjectsStore.update(gitlabID, { id: gitlabID, loadDt: null, projects: [] });
+        this.gitlabProjectsStore.ui.update(gitlabID, state => ({
+          ...state,
+          isLoading: true,
+        }));
+      });
       const withArchivedProjects = this.configQuery.getValue().filter.withArchivedProjects;
       this.getGitlabData(gitlabID, withArchivedProjects)
         .pipe(
@@ -94,6 +98,7 @@ export class GitlabProjectsService implements OnDestroy {
     return this.gitlabApi.getAllProjects(config, opts).pipe(
       map(projects => ({
         id: gitlabID,
+        loadDt: new Date().toISOString(),
         projects,
       })),
     );

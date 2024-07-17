@@ -32,7 +32,7 @@ export class GitlabProjectsQuery extends QueryEntity<GitlabProjectsState> {
         const res: { [gitlabID: string]: boolean } = {};
         for (const gitlabID in uiState) {
           if (uiState.hasOwnProperty(gitlabID)) {
-            res[gitlabID] = uiState[gitlabID].isLoading;
+            res[gitlabID] = uiState[gitlabID]?.isLoading ?? false;
           }
         }
         return res;

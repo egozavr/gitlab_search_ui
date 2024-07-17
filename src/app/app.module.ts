@@ -22,11 +22,12 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTreeModule } from '@angular/material/tree';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { akitaDevtools, persistState } from '@datorama/akita';
+import { akitaDevtools, persistState, PersistStateSelectFn } from '@datorama/akita';
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { GitlabConfigDialogComponent } from './gitlab-config/gitlab-config-dialog/gitlab-config-dialog.component';
 import { GitlabConfigItemComponent } from './gitlab-config/gitlab-config-item/gitlab-config-item.component';
+import { GitlabProjectsState, GitlabProjectsUIState } from './gitlab-projects/state/gitlab-projects.store';
 import { HttpErrorInterceptor } from './http-error.interceptor';
 import { AKITA_PERSIST_STORAGE } from './persist-state.token';
 import { QueryFormComponent } from './query-form/query-form.component';
@@ -34,8 +35,27 @@ import { SearchFormComponent } from './search-form/search-form.component';
 import { SearchResultsComponent } from './search-results/search-results.component';
 import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
 
+const gitlabProjectsPersistFn: PersistStateSelectFn<GitlabProjectsState> = (state: GitlabProjectsState) => ({
+  entities: state.entities,
+  ids: state.ids,
+});
+gitlabProjectsPersistFn.storeName = 'gitlab-projects';
+
 const storage = persistState({
-  include: ['gitlab-config'],
+  include: ['gitlab-config', 'gitlab-projects', 'UI/gitlab-projects'],
+  select: [gitlabProjectsPersistFn],
+  preStoreUpdate(storeName, state, initialState) {
+    if (storeName === 'UI/gitlab-projects') {
+      const entities = (state as GitlabProjectsUIState)?.entities;
+      if (entities) {
+        for (const id in entities) {
+          const uiState = entities[id];
+          if (typeof uiState === 'object' && uiState !== null) entities[id].isLoading = false;
+        }
+      }
+    }
+    return state;
+  },
 });
 
 @NgModule({
@@ -83,10 +103,7 @@ const storage = persistState({
       provide: ENVIRONMENT_INITIALIZER,
       multi: true,
       useFactory() {
-        return () => {
-          console.log(environment.production);
-          return environment.production ? null : akitaDevtools(inject(NgZone));
-        };
+        return () => (environment.production ? null : akitaDevtools(inject(NgZone)));
       },
     },
     provideHttpClient(withInterceptorsFromDi()),
