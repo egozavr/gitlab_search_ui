@@ -29,6 +29,27 @@
 @include mat.core();
 @include mat.typography-hierarchy(m3-theme.$dark-theme);
 
+@mixin _apply-light-colors() {
+  @include mat.core-color(m3-theme.$light-theme);
+  @include mat.button-color(m3-theme.$light-theme);
+  @include mat.card-color(m3-theme.$light-theme);
+  @include mat.checkbox-color(m3-theme.$light-theme);
+  @include mat.dialog-color(m3-theme.$light-theme);
+  @include mat.divider-color(m3-theme.$light-theme);
+  @include mat.form-field-color(m3-theme.$light-theme);
+  @include mat.icon-color(m3-theme.$light-theme);
+  @include mat.input-color(m3-theme.$light-theme);
+  @include mat.menu-color(m3-theme.$light-theme);
+  @include mat.progress-bar-color(m3-theme.$light-theme);
+  @include mat.progress-spinner-color(m3-theme.$light-theme);
+  @include mat.slide-toggle-color(m3-theme.$light-theme);
+  @include mat.sidenav-color(m3-theme.$light-theme);
+  @include mat.snack-bar-color(m3-theme.$light-theme);
+  @include mat.toolbar-color(m3-theme.$light-theme);
+  @include mat.tree-color(m3-theme.$light-theme);
+  @include custom-styles-theme(m3-theme.$light-theme);
+}
+
 body {
   @include mat.core-theme(m3-theme.$dark-theme);
   @include mat.button-theme(m3-theme.$dark-theme);
@@ -49,26 +70,12 @@ body {
   @include mat.tree-theme(m3-theme.$dark-theme);
   @include custom-styles-theme(m3-theme.$dark-theme);
 
+  &.light-theme {
+    @include _apply-light-colors();
+  }
   @media (prefers-color-scheme: light) {
-    &:not(.force-dark-theme) {
-      @include mat.core-color(m3-theme.$light-theme);
-      @include mat.button-color(m3-theme.$light-theme);
-      @include mat.card-color(m3-theme.$light-theme);
-      @include mat.checkbox-color(m3-theme.$light-theme);
-      @include mat.dialog-color(m3-theme.$light-theme);
-      @include mat.divider-color(m3-theme.$light-theme);
-      @include mat.form-field-color(m3-theme.$light-theme);
-      @include mat.icon-color(m3-theme.$light-theme);
-      @include mat.input-color(m3-theme.$light-theme);
-      @include mat.menu-color(m3-theme.$light-theme);
-      @include mat.progress-bar-color(m3-theme.$light-theme);
-      @include mat.progress-spinner-color(m3-theme.$light-theme);
-      @include mat.slide-toggle-color(m3-theme.$light-theme);
-      @include mat.sidenav-color(m3-theme.$light-theme);
-      @include mat.snack-bar-color(m3-theme.$light-theme);
-      @include mat.toolbar-color(m3-theme.$light-theme);
-      @include mat.tree-color(m3-theme.$light-theme);
-      @include custom-styles-theme(m3-theme.$light-theme);
+    &:not(.dark-theme) {
+      @include _apply-light-colors();
     }
   }
 }
