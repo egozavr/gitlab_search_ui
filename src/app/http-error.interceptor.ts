@@ -18,7 +18,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
           message = `Unknown error: ${err?.message || err?.error || err}`;
         }
         this.snackbar.open(message, 'Close', { duration: 15000, panelClass: 'error-snackbar' });
-        return throwError(err);
+        return throwError(() => err);
       }),
     );
   }
