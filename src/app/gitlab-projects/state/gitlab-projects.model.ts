@@ -45,12 +45,12 @@ export interface GitlabNamespace {
   type: 'namespace';
 }
 
-export function isGitlabProject(v: any): v is GitlabProject {
-  return v !== null && typeof (v === 'object') && v.gitlab_id && v.type === 'project';
+export function isGitlabProject(v: unknown): v is GitlabProject {
+  return v !== null && typeof (v === 'object') && v['gitlab_id'] && v['type'] === 'project';
 }
 
-export function isGitlabNamespace(v: any): v is GitlabNamespace {
-  return v !== null && typeof (v === 'object') && v.gitlab_id && v.type === 'namespace';
+export function isGitlabNamespace(v: unknown): v is GitlabNamespace {
+  return v !== null && typeof (v === 'object') && v['gitlab_id'] && v['type'] === 'namespace';
 }
 
 export interface SearchProject {

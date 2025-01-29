@@ -26,7 +26,7 @@
           [projectSelected]="projectSelected$ | async"
           [searchProgress]="searchProgress$ | async"
           (query)="search($event)"
-          (stop)="onStopSearchEvent()"
+          (stopSearch)="onStopSearchEvent()"
         ></app-query-form>
       </mat-card>
     </div>

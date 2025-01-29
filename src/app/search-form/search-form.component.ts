@@ -27,7 +27,10 @@ export class GitlabEntityFlatNode {
   childrenQty: number | null;
 }
 
-type GitlabEntityValue = { namespaces?: GitlabEntityMap; projects?: GitlabProject[] };
+interface GitlabEntityValue {
+  namespaces?: GitlabEntityMap;
+  projects?: GitlabProject[];
+}
 type GitlabEntityMap = Map<string, GitlabEntityValue>;
 
 @Component({
@@ -46,9 +49,9 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  @Input() dataLoading: { [gitlabID: string]: boolean };
+  @Input() dataLoading: Record<string, boolean>;
 
-  private gitlabUrlByID: { [id: string]: string };
+  private gitlabUrlByID: Record<string, string>;
   @Input() set gitlabConfigs(v: GitlabConfig[]) {
     this.gitlabUrlByID = {};
     v.forEach(config => {
@@ -71,7 +74,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   treeFlattener: MatTreeFlattener<GitlabEntityNode, GitlabEntityFlatNode>;
   dataSource: MatTreeFlatDataSource<GitlabEntityNode, GitlabEntityFlatNode>;
 
-  loadDtById: { [gitlabId: string]: string | null } = {};
+  loadDtById: Record<string, string | null> = {};
 
   nodeSelection = new SelectionModelTrackBy<GitlabEntityFlatNode, string>(node => {
     if (typeof node.item === 'string') {
@@ -262,7 +265,9 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     this.nodeSelection.toggle(node);
     this.emitGitlabSelected(node, ev);
     const descendants = this.treeControl.getDescendants(node);
-    this.nodeSelection.isSelected(node) ? this.nodeSelection.select(...descendants) : this.nodeSelection.deselect(...descendants);
+
+    if (this.nodeSelection.isSelected(node)) this.nodeSelection.select(...descendants);
+    else this.nodeSelection.deselect(...descendants);
 
     // Force update for the parent
     descendants.forEach(child => this.nodeSelection.isSelected(child));

@@ -28,7 +28,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   gitlabConfigs$: Observable<GitlabConfig[]>;
   gitlabItems$: Observable<GitlabData[]>;
-  gitladDataLoading$: Observable<{ [gitlabID: string]: boolean }>;
+  gitladDataLoading$: Observable<Record<string, boolean>>;
   searchResults$: Observable<SearchResult[]>;
   searchProgress$: Observable<SearchProgress | null>;
   projectSelected$: Observable<boolean>;

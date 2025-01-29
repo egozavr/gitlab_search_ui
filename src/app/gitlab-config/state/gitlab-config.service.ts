@@ -11,7 +11,7 @@ import { GitlabConfigStore, StoredFilter, ThemeMode } from './gitlab-config.stor
 @Injectable({ providedIn: 'root' })
 export class GitlabConfigService implements OnDestroy {
   private destroy$ = new Subject<void>();
-  private rateLimiControllers: Map<string, RateLimitController> = new Map();
+  private rateLimiControllers = new Map<string, RateLimitController>();
 
   constructor(
     private store: GitlabConfigStore,
@@ -20,7 +20,7 @@ export class GitlabConfigService implements OnDestroy {
   ) {
     selectPersistStateInit()
       .pipe(withLatestFrom(this.query.selectAll()), takeUntil(this.destroy$))
-      .subscribe(([_, configs]) => {
+      .subscribe(([, configs]) => {
         configs.forEach(config => {
           if (config.rateLimit && config.rateLimit > 0) {
             this.rateLimiControllers.set(config.id, new RateLimitController(config.rateLimit));

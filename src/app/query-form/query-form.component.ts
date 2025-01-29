@@ -30,7 +30,7 @@ export class QueryFormComponent {
   }
 
   @Output() query = new EventEmitter<string>();
-  @Output() stop = new EventEmitter<void>();
+  @Output() stopSearch = new EventEmitter<void>();
 
   submit(): void {
     this.query.emit(this.queryForm.value.query);

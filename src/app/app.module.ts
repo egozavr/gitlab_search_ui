@@ -44,7 +44,7 @@ gitlabProjectsPersistFn.storeName = 'gitlab-projects';
 const storage = persistState({
   include: ['gitlab-config', 'gitlab-projects', 'UI/gitlab-projects'],
   select: [gitlabProjectsPersistFn],
-  preStoreUpdate(storeName, state, initialState) {
+  preStoreUpdate(storeName, state) {
     if (storeName === 'UI/gitlab-projects') {
       const entities = (state as GitlabProjectsUIState)?.entities;
       if (entities) {
