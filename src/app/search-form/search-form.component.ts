@@ -14,6 +14,7 @@ import {
   isGitlabProject,
 } from '../gitlab-projects/state/gitlab-projects.model';
 import { SelectionModelTrackBy } from './selection-model-track-by.class';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 
 export class GitlabEntityNode {
   children: GitlabEntityNode[];
@@ -28,8 +29,8 @@ export class GitlabEntityFlatNode {
 }
 
 interface GitlabEntityValue {
-  namespaces?: GitlabEntityMap;
-  projects?: GitlabProject[];
+  namespaces: GitlabEntityMap;
+  projects: GitlabProject[];
 }
 type GitlabEntityMap = Map<string, GitlabEntityValue>;
 
@@ -38,6 +39,14 @@ type GitlabEntityMap = Map<string, GitlabEntityValue>;
   templateUrl: './search-form.component.html',
   styleUrls: ['./search-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('expandedState', [
+      state('default', style({ transform: 'rotate(0)' })),
+      state('expanded', style({ transform: 'rotate(90deg)' })),
+      transition('expanded => default', animate('225ms ease-out')),
+      transition('default => expanded', animate('225ms ease-in')),
+    ]),
+  ],
 })
 export class SearchFormComponent implements OnInit, OnDestroy {
   @Input() set gitlabItems(items: GitlabData[]) {
@@ -139,31 +148,29 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   private groupProjectByNamespaces(data: GitlabData): GitlabEntityMap {
     const res: GitlabEntityMap = new Map();
     (data.projects || []).forEach(project => {
-      const nsNames = project.name_with_namespace.split(this.nsNameSeparator).slice(0, -1);
+      const nsNames = project.name_with_namespace.split(this.nsNameSeparator);
       const gitlabProject: GitlabProject = { gitlab_id: data.id, type: 'project', ...project };
 
+      if (nsNames.length < 2) {
+        console.error(`Gitlab project ${project.name_with_namespace} cannot exist without group or namespace`);
+        return;
+      }
+
       let currentNsMap = res;
-      nsNames.forEach((nsName, i) => {
+      let currentNs: GitlabEntityValue;
+      nsNames.forEach((nameSegment, i) => {
         const isLast = i === nsNames.length - 1;
-        if (!currentNsMap.has(nsName)) {
-          if (isLast) {
-            currentNsMap.set(nsName, { projects: [gitlabProject] });
-            return;
+        if (!isLast) {
+          if (!currentNsMap.has(nameSegment)) {
+            currentNs = { namespaces: new Map(), projects: [] };
+            currentNsMap.set(nameSegment, currentNs);
+          } else {
+            currentNs = currentNsMap.get(nameSegment);
           }
-          const nextNsMap = new Map();
-          currentNsMap.set(nsName, { namespaces: nextNsMap });
-          currentNsMap = nextNsMap;
+          currentNsMap = currentNs.namespaces;
           return;
         }
-        const currentNs = currentNsMap.get(nsName);
-        if (isLast) {
-          (currentNs.projects || []).push(gitlabProject);
-          return;
-        }
-        if (!currentNs.namespaces) {
-          currentNs.namespaces = new Map();
-        }
-        currentNsMap = currentNs.namespaces;
+        currentNs.projects.push(gitlabProject);
       });
     });
     return res;
@@ -171,7 +178,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
   private convertGroupedByNsToNode(gitlabId: string, grouped: GitlabEntityMap): GitlabEntityNode {
     const root: GitlabEntityNode = { item: gitlabId, children: [] };
-    const rootGroup: GitlabEntityMap = new Map([['root', { namespaces: grouped }]]);
+    const rootGroup: GitlabEntityMap = new Map([['root', { namespaces: grouped, projects: [] }]]);
     const treeStack = [{ node: root, parent: rootGroup, nsName: 'root' }];
 
     while (treeStack.length > 0) {

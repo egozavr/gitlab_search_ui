@@ -20,7 +20,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTreeModule } from '@angular/material/tree';
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, DomSanitizer } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { akitaDevtools, persistState, PersistStateSelectFn } from '@datorama/akita';
 import { environment } from '../environments/environment';
@@ -110,7 +110,8 @@ const storage = persistState({
   ],
 })
 export class AppModule {
-  constructor(iconRegistry: MatIconRegistry) {
+  constructor(iconRegistry: MatIconRegistry, sanitizer: DomSanitizer) {
     iconRegistry.setDefaultFontSetClass('material-symbols-outlined');
+    iconRegistry.addSvgIconSetInNamespace('gitlab', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/gitlab-icon-set.svg'));
   }
 }

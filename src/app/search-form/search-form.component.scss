@@ -23,8 +23,13 @@
   }
 }
 
-.folder-button {
+.group-button,
+.leaf-level-icon {
   color: var(--mat-theme-primary-color);
+}
+
+.leaf-level-icon {
+  padding: 12px;
 }
 
 .mat-icon[matprefix] {
