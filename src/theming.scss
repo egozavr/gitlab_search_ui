@@ -49,26 +49,25 @@
   @include mat.tree-color(m3-theme.$light-theme);
   @include custom-styles-theme(m3-theme.$light-theme);
 }
-@include mat.card-theme(m3-theme.$dark-theme);
-@include mat.checkbox-theme(m3-theme.$dark-theme);
-@include mat.dialog-theme(m3-theme.$dark-theme);
-@include mat.divider-theme(m3-theme.$dark-theme);
-@include mat.form-field-theme(m3-theme.$dark-theme);
-@include mat.icon-theme(m3-theme.$dark-theme);
-@include mat.input-theme(m3-theme.$dark-theme);
-@include mat.menu-theme(m3-theme.$dark-theme);
-@include mat.progress-bar-theme(m3-theme.$dark-theme);
-@include mat.progress-spinner-theme(m3-theme.$dark-theme);
-@include mat.slide-toggle-theme(m3-theme.$dark-theme);
-@include mat.sidenav-theme(m3-theme.$dark-theme);
-@include mat.snack-bar-theme(m3-theme.$dark-theme);
-@include mat.toolbar-theme(m3-theme.$dark-theme);
-@include mat.tree-theme(m3-theme.$dark-theme);
 
 body {
   @include mat.core-theme(m3-theme.$dark-theme);
   @include mat.button-theme(m3-theme.$dark-theme);
-  // ...
+  @include mat.card-theme(m3-theme.$dark-theme);
+  @include mat.checkbox-theme(m3-theme.$dark-theme);
+  @include mat.dialog-theme(m3-theme.$dark-theme);
+  @include mat.divider-theme(m3-theme.$dark-theme);
+  @include mat.form-field-theme(m3-theme.$dark-theme);
+  @include mat.icon-theme(m3-theme.$dark-theme);
+  @include mat.input-theme(m3-theme.$dark-theme);
+  @include mat.menu-theme(m3-theme.$dark-theme);
+  @include mat.progress-bar-theme(m3-theme.$dark-theme);
+  @include mat.progress-spinner-theme(m3-theme.$dark-theme);
+  @include mat.slide-toggle-theme(m3-theme.$dark-theme);
+  @include mat.sidenav-theme(m3-theme.$dark-theme);
+  @include mat.snack-bar-theme(m3-theme.$dark-theme);
+  @include mat.toolbar-theme(m3-theme.$dark-theme);
+  @include mat.tree-theme(m3-theme.$dark-theme);
   @include custom-styles-theme(m3-theme.$dark-theme);
 
   &.light-theme {
