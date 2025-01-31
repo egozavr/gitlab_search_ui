@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { MatCard } from '@angular/material/card';
 import { SearchResult } from '../search-result/state/search-result.model';
 
 @Component({
@@ -6,6 +7,8 @@ import { SearchResult } from '../search-result/state/search-result.model';
   templateUrl: './search-results.component.html',
   styleUrls: ['./search-results.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [MatCard],
 })
 export class SearchResultsComponent {
   @Input({ required: true }) results: SearchResult[];

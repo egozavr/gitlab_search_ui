@@ -1,5 +1,9 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
 import { GitlabConfig } from '../state/gitlab-config.model';
 import { GitlabConfigService } from '../state/gitlab-config.service';
 
@@ -8,6 +12,8 @@ import { GitlabConfigService } from '../state/gitlab-config.service';
   templateUrl: './gitlab-config-item.component.html',
   styleUrls: ['./gitlab-config-item.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [MatIconButton, MatIcon, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatSuffix],
 })
 export class GitlabConfigItemComponent implements OnInit {
   configForm: FormGroup;

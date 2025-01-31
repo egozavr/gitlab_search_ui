@@ -35,7 +35,6 @@
         @if (nodeIsGitlabAndNotLoaded(node, leafNode.level)) {
           <span class="gitlab-node-empty">
             <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNodeContext(node) }"></ng-container>
-
           </span>
         } @else {
           <mat-checkbox

@@ -1,9 +1,16 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { AsyncPipe, DatePipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, Validators } from '@angular/forms';
-import { MatCheckboxChange } from '@angular/material/checkbox';
-import { MatTree } from '@angular/material/tree';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
+import { MatError, MatFormField, MatLabel, MatPrefix, MatSuffix } from '@angular/material/form-field';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { MatTree, MatTreeNode, MatTreeNodeDef, MatTreeNodePadding, MatTreeNodeToggle } from '@angular/material/tree';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, startWith, tap } from 'rxjs/operators';
 import { GitlabConfig } from '../gitlab-config/state/gitlab-config.model';
@@ -49,6 +56,30 @@ interface NodeDisplayContext {
       transition('expanded => default', animate('225ms ease-out')),
       transition('default => expanded', animate('225ms ease-in')),
     ]),
+  ],
+  standalone: true,
+  imports: [
+    MatFormField,
+    MatInput,
+    ReactiveFormsModule,
+    MatLabel,
+    MatIcon,
+    MatPrefix,
+    MatIconButton,
+    MatSuffix,
+    MatError,
+    MatSlideToggle,
+    MatTree,
+    MatTreeNodeDef,
+    MatTreeNode,
+    MatTreeNodePadding,
+    MatProgressSpinner,
+    NgTemplateOutlet,
+    MatCheckbox,
+    MatTreeNodeToggle,
+    MatButton,
+    AsyncPipe,
+    DatePipe,
   ],
 })
 export class SearchFormComponent implements OnInit {

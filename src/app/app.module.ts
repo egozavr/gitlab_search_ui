@@ -59,15 +59,7 @@ const storage = persistState({
 });
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    SearchFormComponent,
-    SearchResultsComponent,
-    GitlabConfigDialogComponent,
-    GitlabConfigItemComponent,
-    ThemeToggleComponent,
-    QueryFormComponent,
-  ],
+  declarations: [AppComponent],
   bootstrap: [AppComponent],
   imports: [
     BrowserAnimationsModule,
@@ -92,6 +84,12 @@ const storage = persistState({
     MatToolbarModule,
     MatTreeModule,
     ReactiveFormsModule,
+    SearchFormComponent,
+    SearchResultsComponent,
+    GitlabConfigDialogComponent,
+    GitlabConfigItemComponent,
+    ThemeToggleComponent,
+    QueryFormComponent,
   ],
   providers: [
     {
