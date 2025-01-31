@@ -13,7 +13,7 @@
       [gitlabItems]="gitlabItems$ | async"
       [dataLoading]="gitladDataLoading$ | async"
       [withArchived]="withArchived$ | async"
-      (gitlabSelected)="updateGitlabData($event)"
+      (loadGitlab)="updateGitlabData($event)"
       (reloadGitlab)="reloadGitlabData($event)"
       (projectsSelected)="updateSelectedProjects($event)"
       (withArchivedChange)="onWithArchivedChange($event)"

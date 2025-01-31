@@ -16,10 +16,10 @@
   With archived projects
 </mat-slide-toggle>
 
-@if (this.dataSource.data?.length > 0) {
-  <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-    <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-      @if (node.level === 0) {
+@if ((this.dataSource | async)?.length) {
+  <mat-tree #tree="matTree" [dataSource]="dataSource" [childrenAccessor]="getChildren">
+    <mat-tree-node #leafNode="matTreeNode" *matTreeNodeDef="let node" matTreeNodePadding>
+      @if (leafNode.level === 0) {
         <mat-icon class="leaf-level-icon">folder</mat-icon>
       } @else {
         <mat-icon class="leaf-level-icon" svgIcon="gitlab:project"></mat-icon>
@@ -28,39 +28,48 @@
         <div class="loading-box">
           <mat-spinner [diameter]="20"></mat-spinner>
           <span class="label">
-            <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNode(node) }"></ng-container>
+            <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNodeContext(node) }"></ng-container>
           </span>
         </div>
       } @else {
-        <mat-checkbox
-          [checked]="nodeSelection.isSelected(node)"
-          (change)="leafNodeSelectionToggle(node, $event)"
-          class="checklist-leaf-node"
-        >
-          <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNode(node) }"></ng-container>
-        </mat-checkbox>
+        @if (nodeIsGitlabAndNotLoaded(node, leafNode.level)) {
+          <span class="gitlab-node-empty">
+            <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNodeContext(node) }"></ng-container>
+
+          </span>
+        } @else {
+          <mat-checkbox
+            [checked]="nodeSelection.isSelected(node)"
+            (change)="nodeSelectionToggle(node, $event, true)"
+            class="checklist-leaf-node"
+          >
+            <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNodeContext(node) }"></ng-container>
+          </mat-checkbox>
+        }
       }
     </mat-tree-node>
-    <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+
+    <mat-tree-node #parentNode="matTreeNode" *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
       <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.item" class="group-button">
-        @switch (node.level) {
+        @switch (parentNode.level) {
           @case (0) {
-            <mat-icon>{{ treeControl.isExpanded(node) ? 'folder_open' : 'folder' }}</mat-icon>
+            <mat-icon>{{ parentNode.isExpanded ? 'folder_open' : 'folder' }}</mat-icon>
           }
           @case (1) {
-            <mat-icon svgIcon="gitlab:group" [@expandedState]="treeControl.isExpanded(node) ? 'expanded' : 'default'"></mat-icon>
+            <mat-icon svgIcon="gitlab:group" [@expandedState]="parentNode.isExpanded ? 'expanded' : 'default'"></mat-icon>
           }
           @default {
-            <mat-icon svgIcon="gitlab:subgroup" [@expandedState]="treeControl.isExpanded(node) ? 'expanded' : 'default'"></mat-icon>
+            <mat-icon svgIcon="gitlab:subgroup" [@expandedState]="parentNode.isExpanded ? 'expanded' : 'default'"></mat-icon>
           }
         }
       </button>
       <mat-checkbox
-        [checked]="descendantsAllSelected(node)"
-        [indeterminate]="descendantsPartiallySelected(node)"
+        #checkbox="matCheckbox"
+        [checked]="leafDescendantsAllSelected(node)"
+        [indeterminate]="leafDescendantsPartiallySelected(node, checkbox.checked)"
         (change)="nodeSelectionToggle(node, $event)"
       >
-        <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNode(node) }"></ng-container>
+        <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNodeContext(node) }"></ng-container>
       </mat-checkbox>
     </mat-tree-node>
   </mat-tree>
@@ -69,23 +78,34 @@
 }
 
 <ng-template #nodeTmpl let-displayed>
-  @if (displayed.isLink) {
-    <div class="gitlab-name-label">
-      <div class="load-dt mat-body-small">{{ loadDtById?.[displayed.id] | date: 'yyyy-MM-dd HH:mm:ss' }}</div>
-      <a [attr.href]="displayed.value" target="_blank">
-        {{ displayed.value }}
-      </a>
-      @if (displayed.id) {
-        <button mat-button [disabled]="dataLoading?.[displayed.id]" (click)="reloadGitlab.emit(displayed.id)">
-          <mat-icon>refresh</mat-icon>
-          reload
-        </button>
+  @if (displayed !== null) {
+    @if (displayed.isLink) {
+      <div class="gitlab-name-label">
+        <div class="load-dt mat-body-small">{{ loadDtById?.[displayed.id] | date: 'yyyy-MM-dd HH:mm:ss' }}</div>
+        <a [attr.href]="displayed.value" target="_blank">
+          {{ displayed.value }}
+        </a>
+        @if (displayed.id) {
+          @if (displayed.leafQty === 0) {
+            <button mat-button [disabled]="dataLoading?.[displayed.id]" (click)="loadGitlab.emit(displayed.id)">
+              <mat-icon>download</mat-icon>
+              load
+            </button>
+          } @else {
+            <button mat-button [disabled]="dataLoading?.[displayed.id]" (click)="reloadGitlab.emit(displayed.id)">
+              <mat-icon>refresh</mat-icon>
+              reload
+            </button>
+          }
+        }
+      </div>
+    } @else {
+      {{ displayed.value }}
+      @if (displayed.qty) {
+        <span class="badge">{{ displayed.qty }}</span>
       }
-    </div>
-  } @else {
-    {{ displayed.value }}
-    @if (displayed.qty) {
-      <span class="badge">{{ displayed.qty }}</span>
     }
+  } @else {
+    <span>Unknown node</span>
   }
 </ng-template>

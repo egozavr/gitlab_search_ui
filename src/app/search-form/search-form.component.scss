@@ -23,6 +23,10 @@
   }
 }
 
+.gitlab-node-empty {
+  font-size: var(--mat-checkbox-label-text-size);
+}
+
 .group-button,
 .leaf-level-icon {
   color: var(--mat-theme-primary-color);
