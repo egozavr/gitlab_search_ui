@@ -1,6 +1,10 @@
-import { DOCUMENT } from '@angular/common';
+import { AsyncPipe, DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { MatIconButton } from '@angular/material/button';
+import { MatCard } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
+import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
 import { applyTransaction } from '@datorama/akita';
 import { Observable, Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
@@ -12,16 +16,34 @@ import { ThemeMode } from './gitlab-config/state/gitlab-config.store';
 import { GitlabData, GitlabProject } from './gitlab-projects/state/gitlab-projects.model';
 import { GitlabProjectsQuery } from './gitlab-projects/state/gitlab-projects.query';
 import { GitlabProjectsService } from './gitlab-projects/state/gitlab-projects.service';
+import { QueryFormComponent } from './query-form/query-form.component';
+import { SearchFormComponent } from './search-form/search-form.component';
 import { SearchResult } from './search-result/state/search-result.model';
 import { SearchResultQuery } from './search-result/state/search-result.query';
 import { SearchResultService } from './search-result/state/search-result.service';
 import { SearchProgress } from './search-result/state/search-result.store';
+import { SearchResultsComponent } from './search-results/search-results.component';
+import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    MatSidenavContainer,
+    MatSidenav,
+    MatIconButton,
+    MatIcon,
+    ThemeToggleComponent,
+    SearchFormComponent,
+    MatSidenavContent,
+    MatCard,
+    QueryFormComponent,
+    SearchResultsComponent,
+    AsyncPipe,
+  ],
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'gitlab-search-ui';
