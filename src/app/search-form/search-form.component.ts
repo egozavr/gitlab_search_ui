@@ -143,7 +143,7 @@ export class SearchFormComponent implements OnInit {
         id: node.item,
       };
     }
-    if (isGitlabNamespace(node.item)) {
+    if (isGitlabNamespace(node.item) || isGitlabProject(node.item)) {
       return { value: node.item.name, isLink: false, qty: node.children.length, leafQty: node.leafDescendants.size, id: null };
     }
     return null;
