@@ -47,9 +47,10 @@ jobs:
         with:
           name: built-app
       - name: List files
-        run: ls -la
+        run: ls -la gitlab_search_ui
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
+          context: gitlab_search_ui
           push: true
           tags: egozavr/gitlab-search-ui:${{ env.SHORT_SHA }},egozavr/gitlab-search-ui:latest
