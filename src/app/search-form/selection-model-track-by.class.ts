@@ -41,7 +41,8 @@ export class SelectionModelTrackBy<T, K = T> {
   }
 
   toggle(value: T): void {
-    this.isSelected(value) ? this.deselect(value) : this.select(value);
+    if (this.isSelected(value)) this.deselect(value);
+    else this.select(value);
   }
 
   clear(): void {
@@ -63,7 +64,6 @@ export class SelectionModelTrackBy<T, K = T> {
 
   sort(predicate?: (a: T, b: T) => number): void {
     if (this._multiple && this.selected) {
-      // tslint:disable-next-line: no-non-null-assertion
       this._selected!.sort(predicate);
     }
   }

@@ -1,10 +1,18 @@
-import { FlatTreeControl } from '@angular/cdk/tree';
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
-import { MatCheckboxChange } from '@angular/material/checkbox';
-import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
-import { BehaviorSubject, Observable, Subject, combineLatest } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, map, startWith, takeUntil, tap } from 'rxjs/operators';
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import { AsyncPipe, DatePipe, NgTemplateOutlet } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
+import { MatError, MatFormField, MatLabel, MatPrefix, MatSuffix } from '@angular/material/form-field';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { MatTree, MatTreeNode, MatTreeNodeDef, MatTreeNodePadding, MatTreeNodeToggle } from '@angular/material/tree';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, map, startWith, tap } from 'rxjs/operators';
 import { GitlabConfig } from '../gitlab-config/state/gitlab-config.model';
 import {
   GitlabData,
@@ -16,27 +24,65 @@ import {
 import { SelectionModelTrackBy } from './selection-model-track-by.class';
 
 export class GitlabEntityNode {
+  item: string | GitlabNamespace | GitlabProject;
+  parent: GitlabEntityNode | null;
   children: GitlabEntityNode[];
-  item: string | GitlabNamespace | GitlabProject;
+  leafDescendants: Set<GitlabEntityNode>;
 }
 
-export class GitlabEntityFlatNode {
-  item: string | GitlabNamespace | GitlabProject;
-  level: number;
-  expandable: boolean;
-  childrenQty: number | null;
+interface GitlabEntityValue {
+  namespaces: GitlabEntityMap;
+  projects: GitlabProject[];
 }
-
-type GitlabEntityValue = { namespaces?: GitlabEntityMap; projects?: GitlabProject[] };
 type GitlabEntityMap = Map<string, GitlabEntityValue>;
+
+interface NodeDisplayContext {
+  value: string;
+  isLink: boolean;
+  qty: number;
+  leafQty: number;
+  id: string | null;
+}
 
 @Component({
   selector: 'app-search-form',
   templateUrl: './search-form.component.html',
   styleUrls: ['./search-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('expandedState', [
+      state('default', style({ transform: 'rotate(0)' })),
+      state('expanded', style({ transform: 'rotate(90deg)' })),
+      transition('expanded => default', animate('225ms ease-out')),
+      transition('default => expanded', animate('225ms ease-in')),
+    ]),
+  ],
+  standalone: true,
+  imports: [
+    MatFormField,
+    MatInput,
+    ReactiveFormsModule,
+    MatLabel,
+    MatIcon,
+    MatPrefix,
+    MatIconButton,
+    MatSuffix,
+    MatError,
+    MatSlideToggle,
+    MatTree,
+    MatTreeNodeDef,
+    MatTreeNode,
+    MatTreeNodePadding,
+    MatProgressSpinner,
+    NgTemplateOutlet,
+    MatCheckbox,
+    MatTreeNodeToggle,
+    MatButton,
+    AsyncPipe,
+    DatePipe,
+  ],
 })
-export class SearchFormComponent implements OnInit, OnDestroy {
+export class SearchFormComponent implements OnInit {
   @Input() set gitlabItems(items: GitlabData[]) {
     this.clearNotRootNodeSelection();
     this.data$.next(items);
@@ -46,9 +92,9 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  @Input() dataLoading: { [gitlabID: string]: boolean };
+  @Input() dataLoading: Record<string, boolean>;
 
-  private gitlabUrlByID: { [id: string]: string };
+  private gitlabUrlByID: Record<string, string>;
   @Input() set gitlabConfigs(v: GitlabConfig[]) {
     this.gitlabUrlByID = {};
     v.forEach(config => {
@@ -58,22 +104,18 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
   @Input() withArchived: boolean;
 
-  @Output() gitlabSelected = new EventEmitter<string>();
+  @Output() loadGitlab = new EventEmitter<string>();
   @Output() reloadGitlab = new EventEmitter<string>();
   @Output() projectsSelected = new EventEmitter<GitlabProject[]>();
   @Output() withArchivedChange = new EventEmitter<boolean>();
 
-  flatNodeMap = new Map<GitlabEntityFlatNode, GitlabEntityNode>();
-  nestedNodeMap = new Map<GitlabEntityNode, GitlabEntityFlatNode>();
-  selectedParent: GitlabEntityFlatNode | null = null;
+  @ViewChild(MatTree) private tree: MatTree<GitlabEntityNode>;
 
-  treeControl: FlatTreeControl<GitlabEntityFlatNode>;
-  treeFlattener: MatTreeFlattener<GitlabEntityNode, GitlabEntityFlatNode>;
-  dataSource: MatTreeFlatDataSource<GitlabEntityNode, GitlabEntityFlatNode>;
+  loadDtById: Record<string, string | null> = {};
 
-  loadDtById: { [gitlabId: string]: string | null } = {};
+  dataSource = new BehaviorSubject<GitlabEntityNode[]>([]);
 
-  nodeSelection = new SelectionModelTrackBy<GitlabEntityFlatNode, string>(node => {
+  nodeSelection = new SelectionModelTrackBy<GitlabEntityNode, string>(node => {
     if (typeof node.item === 'string') {
       return node.item;
     }
@@ -87,22 +129,20 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
   filterCtrl = new FormControl('', Validators.minLength(3));
 
+  getChildren = (node: GitlabEntityNode): GitlabEntityNode[] => node.children ?? [];
+  hasChild = (_: number, node: GitlabEntityNode) => node.children?.length > 0;
+
   private readonly data$ = new BehaviorSubject<GitlabData[]>([]);
   private filteredData$: Observable<[GitlabData[], string]>;
-  private destroy$ = new Subject<void>();
-  private readonly nsNameSeparator = ' / ' as const;
+  private destroyRef = inject(DestroyRef);
 
-  constructor() {
-    this.treeFlattener = new MatTreeFlattener(this.transformer, this.getLevel, this.isExpandable, this.getChildren);
-    this.treeControl = new FlatTreeControl<GitlabEntityFlatNode>(this.getLevel, this.isExpandable);
-    this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
-  }
+  private readonly nsNameSeparator = ' / ' as const;
 
   ngOnInit(): void {
     const queries$ = this.filterCtrl.valueChanges.pipe(
       filter(() => this.filterCtrl.valid),
       startWith(''),
-      debounceTime(200),
+      debounceTime(300),
       distinctUntilChanged(),
       tap(() => {
         this.nodeSelection.clear();
@@ -111,16 +151,72 @@ export class SearchFormComponent implements OnInit, OnDestroy {
 
     this.filteredData$ = combineLatest([this.data$, queries$]).pipe(map(this.filterData));
 
-    this.filteredData$.pipe(takeUntil(this.destroy$)).subscribe(([data, query]) => {
-      this.dataSource.data = this.getTreeNodes(data);
-      const rootNodes = this.treeControl.dataNodes.filter(node => node.level === 0);
+    this.filteredData$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(([data, query]) => {
+      const nodes = this.getTreeNodes(data);
+      this.dataSource.next(nodes);
       if (query !== '') {
-        this.nodeSelection.select(...rootNodes.filter(node => node.expandable));
-        this.treeControl.expandAll();
+        nodes.forEach(node => {
+          this.tree?.expandDescendants(node);
+          this.nodeSelection.select(...node.leafDescendants.keys());
+        });
       }
-      this.updateNodeSelection(this.treeControl.dataNodes.filter(node => node.level === 0));
       this.projectsSelected.emit(this.getSelectedProjects());
     });
+  }
+
+  displayNodeContext(node: GitlabEntityNode): NodeDisplayContext | null {
+    if (typeof node.item === 'string') {
+      return {
+        value: this.gitlabUrlByID[node.item],
+        isLink: true,
+        qty: node.children.length,
+        leafQty: node.leafDescendants.size,
+        id: node.item,
+      };
+    }
+    if (isGitlabNamespace(node.item) || isGitlabProject(node.item)) {
+      return { value: node.item.name, isLink: false, qty: node.children.length, leafQty: node.leafDescendants.size, id: null };
+    }
+    return null;
+  }
+
+  getNodeDataLoading(node: GitlabEntityNode): boolean {
+    return typeof node.item === 'string' && this.dataLoading[node.item];
+  }
+
+  /** Whether all the descendants of the node are selected. */
+  leafDescendantsAllSelected(node: GitlabEntityNode): boolean {
+    for (const leafNode of node.leafDescendants.keys()) {
+      if (!this.nodeSelection.isSelected(leafNode)) return false;
+    }
+    return true;
+  }
+
+  /** Whether part of the descendants are selected */
+  leafDescendantsPartiallySelected(node: GitlabEntityNode, allSelected: boolean): boolean {
+    if (allSelected) return false;
+    for (const leafNode of node.leafDescendants.keys()) {
+      if (this.nodeSelection.isSelected(leafNode)) return true;
+    }
+    return false;
+  }
+
+  /** Toggle the node selection. Select/deselect all the descendants node for not leaf nodes */
+  nodeSelectionToggle(node: GitlabEntityNode, ev: MatCheckboxChange, isLeaf = false): void {
+    if (isLeaf) {
+      this.nodeSelection.toggle(node);
+    } else {
+      if (ev.checked) {
+        this.nodeSelection.select(...node.leafDescendants.keys());
+      } else {
+        this.nodeSelection.deselect(...node.leafDescendants.keys());
+      }
+    }
+    this.projectsSelected.emit(this.getSelectedProjects());
+  }
+
+  nodeIsGitlabAndNotLoaded(node: GitlabEntityNode, level: number): boolean {
+    return level === 0 && node.leafDescendants.size === 0;
   }
 
   private getTreeNodes(datas: GitlabData[]): GitlabEntityNode[] {
@@ -136,39 +232,37 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   private groupProjectByNamespaces(data: GitlabData): GitlabEntityMap {
     const res: GitlabEntityMap = new Map();
     (data.projects || []).forEach(project => {
-      const nsNames = project.name_with_namespace.split(this.nsNameSeparator).slice(0, -1);
+      const nsNames = project.name_with_namespace.split(this.nsNameSeparator);
       const gitlabProject: GitlabProject = { gitlab_id: data.id, type: 'project', ...project };
 
+      if (nsNames.length < 2) {
+        console.error(`Gitlab project ${project.name_with_namespace} cannot exist without group or namespace`);
+        return;
+      }
+
       let currentNsMap = res;
-      nsNames.forEach((nsName, i) => {
+      let currentNs: GitlabEntityValue;
+      nsNames.forEach((nameSegment, i) => {
         const isLast = i === nsNames.length - 1;
-        if (!currentNsMap.has(nsName)) {
-          if (isLast) {
-            currentNsMap.set(nsName, { projects: [gitlabProject] });
-            return;
+        if (!isLast) {
+          if (!currentNsMap.has(nameSegment)) {
+            currentNs = { namespaces: new Map(), projects: [] };
+            currentNsMap.set(nameSegment, currentNs);
+          } else {
+            currentNs = currentNsMap.get(nameSegment);
           }
-          const nextNsMap = new Map();
-          currentNsMap.set(nsName, { namespaces: nextNsMap });
-          currentNsMap = nextNsMap;
+          currentNsMap = currentNs.namespaces;
           return;
         }
-        const currentNs = currentNsMap.get(nsName);
-        if (isLast) {
-          (currentNs.projects || []).push(gitlabProject);
-          return;
-        }
-        if (!currentNs.namespaces) {
-          currentNs.namespaces = new Map();
-        }
-        currentNsMap = currentNs.namespaces;
+        currentNs.projects.push(gitlabProject);
       });
     });
     return res;
   }
 
   private convertGroupedByNsToNode(gitlabId: string, grouped: GitlabEntityMap): GitlabEntityNode {
-    const root: GitlabEntityNode = { item: gitlabId, children: [] };
-    const rootGroup: GitlabEntityMap = new Map([['root', { namespaces: grouped }]]);
+    const root: GitlabEntityNode = { item: gitlabId, parent: null, children: [], leafDescendants: new Set() };
+    const rootGroup: GitlabEntityMap = new Map([['root', { namespaces: grouped, projects: [] }]]);
     const treeStack = [{ node: root, parent: rootGroup, nsName: 'root' }];
 
     while (treeStack.length > 0) {
@@ -177,6 +271,26 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       const childrenNodes = this.putToNode(gitlabId, currentTreeNode.node, child);
       treeStack.push(...childrenNodes);
     }
+
+    const nodesQueue = [...this.getAllLeafDescendants(root)];
+    while (nodesQueue.length > 0) {
+      const node = nodesQueue.shift();
+      if (node.parent === null) {
+        continue;
+      }
+      if (node.leafDescendants.size === 0) {
+        node.parent.leafDescendants.add(node);
+      } else {
+        for (const descNode of node.leafDescendants.keys()) {
+          node.parent.leafDescendants.add(descNode);
+        }
+      }
+      const queueSet = new Set(nodesQueue);
+      if (!queueSet.has(node.parent)) {
+        nodesQueue.push(node.parent);
+      }
+    }
+
     return root;
   }
 
@@ -188,14 +302,23 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     const res: { node: GitlabEntityNode; nsName: string; parent: GitlabEntityMap }[] = [];
     if (val.namespaces?.size) {
       for (const nsName of [...val.namespaces.keys()].sort()) {
-        const childNode: GitlabEntityNode = { item: this.getGitlabNamespaceByName(gitlabId, nsName), children: [] };
+        const childNode: GitlabEntityNode = {
+          item: this.getGitlabNamespaceByName(gitlabId, nsName),
+          parent: node,
+          children: [],
+          leafDescendants: new Set(),
+        };
         const parent = val.namespaces;
         res.push({ node: childNode, nsName, parent });
         node.children.push(childNode);
       }
     }
     if (Array.isArray(val.projects)) {
-      node.children.push(...val.projects.sort((a, b) => (a.name > b.name ? 1 : -1)).map(project => ({ item: project, children: [] })));
+      node.children.push(
+        ...val.projects
+          .sort((a, b) => (a.name > b.name ? 1 : -1))
+          .map(project => ({ item: project, parent: node, children: [], leafDescendants: new Set<GitlabEntityNode>() })),
+      );
     }
     return res;
   }
@@ -204,135 +327,18 @@ export class SearchFormComponent implements OnInit, OnDestroy {
     return { gitlab_id: gitlabId, type: 'namespace', name };
   }
 
-  /**
-   * Transformer to convert nested node to flat node. Record the nodes in maps for later use.
-   */
-  private transformer = (node: GitlabEntityNode, level: number): GitlabEntityFlatNode => {
-    const existingNode = this.nestedNodeMap.get(node);
-    const flatNode = existingNode && existingNode.item === node.item ? existingNode : new GitlabEntityFlatNode();
-    flatNode.item = node.item;
-    flatNode.level = level;
-    flatNode.expandable = !!node.children?.length;
-    flatNode.childrenQty = node.children?.length || null;
-    this.flatNodeMap.set(flatNode, node);
-    this.nestedNodeMap.set(node, flatNode);
-    return flatNode;
-  };
-
-  getLevel = (node: GitlabEntityFlatNode) => node.level;
-  isExpandable = (node: GitlabEntityFlatNode) => node.expandable;
-  getChildren = (node: GitlabEntityNode): GitlabEntityNode[] => node.children;
-  hasChild = (_: number, _nodeData: GitlabEntityFlatNode) => _nodeData.expandable;
-
-  private getParentNode(node: GitlabEntityFlatNode): GitlabEntityFlatNode | null {
-    const currentLevel = this.getLevel(node);
-    if (currentLevel < 1) {
-      return null;
-    }
-    const startIndex = this.treeControl.dataNodes.indexOf(node) - 1;
-    for (let i = startIndex; i >= 0; i--) {
-      const currentNode = this.treeControl.dataNodes[i];
-      if (this.getLevel(currentNode) < currentLevel) {
-        return currentNode;
-      }
-    }
-    return null;
-  }
-
-  /** Whether all the descendants of the node are selected. */
-  descendantsAllSelected(node: GitlabEntityFlatNode): boolean {
-    const descendants = this.treeControl.getDescendants(node);
-    const descAllSelected =
-      descendants.length > 0 &&
-      descendants.every(child => {
-        return this.nodeSelection.isSelected(child);
-      });
-    return descAllSelected;
-  }
-
-  /** Whether part of the descendants are selected */
-  descendantsPartiallySelected(node: GitlabEntityFlatNode): boolean {
-    const descendants = this.treeControl.getDescendants(node);
-    const result = descendants.some(child => this.nodeSelection.isSelected(child));
-    return result && !this.descendantsAllSelected(node);
-  }
-
-  /** Toggle the node selection. Select/deselect all the descendants node */
-  nodeSelectionToggle(node: GitlabEntityFlatNode, ev: MatCheckboxChange): void {
-    this.nodeSelection.toggle(node);
-    this.emitGitlabSelected(node, ev);
-    const descendants = this.treeControl.getDescendants(node);
-    this.nodeSelection.isSelected(node) ? this.nodeSelection.select(...descendants) : this.nodeSelection.deselect(...descendants);
-
-    // Force update for the parent
-    descendants.forEach(child => this.nodeSelection.isSelected(child));
-    this.checkAllParentsSelection(node);
-    this.projectsSelected.emit(this.getSelectedProjects());
-  }
-
-  /** Toggle a leaf node selection. Check all the parents to see if they changed */
-  leafNodeSelectionToggle(node: GitlabEntityFlatNode, ev: MatCheckboxChange): void {
-    this.nodeSelection.toggle(node);
-    this.emitGitlabSelected(node, ev);
-    this.checkAllParentsSelection(node);
-    this.projectsSelected.emit(this.getSelectedProjects());
-  }
-
-  /** Checks all the parents when a leaf node is selected/unselected */
-  private checkAllParentsSelection(node: GitlabEntityFlatNode): void {
-    let parent: GitlabEntityFlatNode | null = this.getParentNode(node);
-    while (parent) {
-      this.checkRootNodeSelection(parent);
-      parent = this.getParentNode(parent);
-    }
-  }
-
-  /** Check root node checked state and change it accordingly */
-  private checkRootNodeSelection(node: GitlabEntityFlatNode): void {
-    const nodeSelected = this.nodeSelection.isSelected(node);
-    const descendants = this.treeControl.getDescendants(node);
-    const descAllSelected =
-      descendants.length > 0 &&
-      descendants.every(child => {
-        return this.nodeSelection.isSelected(child);
-      });
-    if (nodeSelected && !descAllSelected) {
-      this.nodeSelection.deselect(node);
-    } else if (!nodeSelected && descAllSelected) {
-      this.nodeSelection.select(node);
-    }
-  }
-
-  private emitGitlabSelected(node: GitlabEntityFlatNode, ev: MatCheckboxChange): void {
-    if (node.level === 0 && typeof node.item === 'string' && ev.checked) {
-      this.gitlabSelected.emit(node.item);
-    }
-  }
-
-  displayNode(node: GitlabEntityFlatNode): { value: string; isLink: boolean; qty: number | null; id: string | null } {
-    if (typeof node.item === 'string') {
-      return { value: this.gitlabUrlByID[node.item], isLink: true, qty: node.childrenQty, id: node.item };
-    }
-    if (isGitlabNamespace(node.item) || isGitlabProject(node.item)) {
-      return { value: node.item.name, isLink: false, qty: node.childrenQty, id: null };
-    }
-    return { value: '', isLink: false, qty: null, id: null };
-  }
-
-  getNodeDataLoading(node: GitlabEntityFlatNode): boolean {
-    return typeof node.item === 'string' && this.dataLoading[node.item];
-  }
-
-  private updateNodeSelection(nodes: GitlabEntityFlatNode[]): void {
-    nodes.forEach(node => {
-      const nodeSelected = this.nodeSelection.isSelected(node);
-      const descendants = this.treeControl.getDescendants(node);
-      if (nodeSelected && descendants.length > 0) {
-        this.nodeSelection.select(...descendants);
+  private getAllLeafDescendants(node: GitlabEntityNode): GitlabEntityNode[] {
+    const leafNodes: GitlabEntityNode[] = [];
+    const nodesToVisit: GitlabEntityNode[] = [node];
+    while (nodesToVisit.length > 0) {
+      const curNode = nodesToVisit.pop();
+      if (curNode.children.length > 0) {
+        nodesToVisit.push(...curNode.children);
       } else {
-        this.updateNodeSelection(descendants);
+        leafNodes.push(curNode);
       }
-    });
+    }
+    return leafNodes;
   }
 
   private getSelectedProjects(): GitlabProject[] {
@@ -340,7 +346,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   }
 
   private clearNotRootNodeSelection(): void {
-    this.nodeSelection.deselect(...this.nodeSelection.selected.filter(node => node.level !== 0));
+    this.nodeSelection.deselect(...this.nodeSelection.selected.filter(node => typeof node.item !== 'string'));
   }
 
   private filterData([datas, query]: [GitlabData[], string]): [GitlabData[], string] {
@@ -353,10 +359,5 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       })),
       query,
     ];
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

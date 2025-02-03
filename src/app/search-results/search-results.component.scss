@@ -5,7 +5,9 @@
 
 .result-item {
   padding: 16px 20px;
-  border-bottom: 1px solid lightgray;
+  &:not(:last-of-type) {
+    border-bottom: 1px solid lightgray;
+  }
 
   pre {
     overflow: auto;

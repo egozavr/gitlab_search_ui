@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { QueryEntity } from '@datorama/akita';
 import { Observable } from 'rxjs';
-import { SearchResultStore, SearchResultState, SearchProgress } from './search-result.store';
+import { SearchProgress, SearchResultState, SearchResultStore } from './search-result.store';
 
 @Injectable({ providedIn: 'root' })
 export class SearchResultQuery extends QueryEntity<SearchResultState> {

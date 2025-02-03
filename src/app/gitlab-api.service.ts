@@ -132,7 +132,7 @@ export class GitlabApiService {
     return `${config.gitlabURL}/api/v4`;
   }
 
-  private getAuthHeader(config: Omit<GitlabConfig, 'id'>): { [header: string]: string } {
+  private getAuthHeader(config: Omit<GitlabConfig, 'id'>): Record<string, string> {
     return { 'Private-Token': config.token };
   }
 
@@ -161,11 +161,11 @@ export class GitlabApiService {
     };
   }
 
-  private getProjOptions(opts: ProjectRequestOptions): { [param: string]: string } {
+  private getProjOptions(opts: ProjectRequestOptions): Record<string, string> {
     opts = { ...defaultProjReqOpts, ...opts };
-    const result: { [param: string]: string } = {};
+    const result: Record<string, string> = {};
     for (const key in opts) {
-      if (opts.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(opts, key)) {
         result[key] = `${opts[key]}`;
       }
     }

@@ -8,7 +8,7 @@ describe('GitlabConfigItemComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [GitlabConfigItemComponent],
+      imports: [GitlabConfigItemComponent],
     }).compileComponents();
   });
 

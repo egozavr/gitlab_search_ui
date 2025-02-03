@@ -26,12 +26,12 @@ export class GitlabProjectsQuery extends QueryEntity<GitlabProjectsState> {
     return this.getEntity(gitLabID)?.projects?.find(p => p.id === projectID);
   }
 
-  dataLoading(): Observable<{ [gitlabID: string]: boolean }> {
+  dataLoading(): Observable<Record<string, boolean>> {
     return this.ui.selectAll({ asObject: true }).pipe(
       map(uiState => {
-        const res: { [gitlabID: string]: boolean } = {};
+        const res: Record<string, boolean> = {};
         for (const gitlabID in uiState) {
-          if (uiState.hasOwnProperty(gitlabID)) {
+          if (Object.prototype.hasOwnProperty.call(uiState, gitlabID)) {
             res[gitlabID] = uiState[gitlabID]?.isLoading ?? false;
           }
         }

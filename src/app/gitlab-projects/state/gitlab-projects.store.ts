@@ -6,7 +6,7 @@ export interface GitlabProjectsState extends EntityState<GitlabData> {
   searchProjects: SearchProject[];
 }
 
-export interface GitlabProjectsUIState extends EntityState<GitlabDataUI> {}
+export type GitlabProjectsUIState = EntityState<GitlabDataUI>;
 
 @Injectable({ providedIn: 'root' })
 @StoreConfig({

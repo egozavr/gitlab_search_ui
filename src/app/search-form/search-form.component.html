@@ -2,69 +2,109 @@
   <input matInput [formControl]="filterCtrl" />
   <mat-label>Filter items</mat-label>
   <mat-icon matPrefix>filter_alt</mat-icon>
-  <button mat-icon-button matSuffix *ngIf="filterCtrl.value" (click)="filterCtrl.reset()">
-    <mat-icon>close</mat-icon>
-  </button>
-  <mat-error *ngIf="filterCtrl.hasError('minlength')">Enter at least 3 characters</mat-error>
+  @if (filterCtrl.value) {
+    <button mat-icon-button matSuffix (click)="filterCtrl.reset()">
+      <mat-icon>close</mat-icon>
+    </button>
+  }
+  @if (filterCtrl.hasError('minlength')) {
+    <mat-error>Enter at least 3 characters</mat-error>
+  }
 </mat-form-field>
 
 <mat-slide-toggle [checked]="withArchived" hideIcon (change)="withArchivedChange.emit($event.checked)">
   With archived projects
 </mat-slide-toggle>
 
-<mat-tree [dataSource]="dataSource" [treeControl]="treeControl" *ngIf="this.dataSource.data?.length > 0; else nogitlabs">
-  <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-    <button mat-icon-button disabled></button>
-    <ng-container *ngIf="getNodeDataLoading(node); else selectableNode">
-      <div class="loading-box">
-        <mat-spinner [diameter]="20"></mat-spinner>
-        <span class="label">
-          <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNode(node) }"></ng-container>
-        </span>
-      </div>
-    </ng-container>
-    <ng-template #selectableNode>
-      <mat-checkbox [checked]="nodeSelection.isSelected(node)" (change)="leafNodeSelectionToggle(node, $event)" class="checklist-leaf-node">
-        <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNode(node) }"></ng-container>
+@if ((this.dataSource | async)?.length) {
+  <mat-tree #tree="matTree" [dataSource]="dataSource" [childrenAccessor]="getChildren">
+    <mat-tree-node #leafNode="matTreeNode" *matTreeNodeDef="let node" matTreeNodePadding>
+      @if (leafNode.level === 0) {
+        <mat-icon class="leaf-level-icon">folder</mat-icon>
+      } @else {
+        <mat-icon class="leaf-level-icon" svgIcon="gitlab:project"></mat-icon>
+      }
+      @if (getNodeDataLoading(node)) {
+        <div class="loading-box">
+          <mat-spinner [diameter]="20"></mat-spinner>
+          <span class="label">
+            <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNodeContext(node) }"></ng-container>
+          </span>
+        </div>
+      } @else {
+        @if (nodeIsGitlabAndNotLoaded(node, leafNode.level)) {
+          <span class="gitlab-node-empty">
+            <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNodeContext(node) }"></ng-container>
+          </span>
+        } @else {
+          <mat-checkbox
+            [checked]="nodeSelection.isSelected(node)"
+            (change)="nodeSelectionToggle(node, $event, true)"
+            class="checklist-leaf-node"
+          >
+            <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNodeContext(node) }"></ng-container>
+          </mat-checkbox>
+        }
+      }
+    </mat-tree-node>
+
+    <mat-tree-node #parentNode="matTreeNode" *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+      <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.item" class="group-button">
+        @switch (parentNode.level) {
+          @case (0) {
+            <mat-icon>{{ parentNode.isExpanded ? 'folder_open' : 'folder' }}</mat-icon>
+          }
+          @case (1) {
+            <mat-icon svgIcon="gitlab:group" [@expandedState]="parentNode.isExpanded ? 'expanded' : 'default'"></mat-icon>
+          }
+          @default {
+            <mat-icon svgIcon="gitlab:subgroup" [@expandedState]="parentNode.isExpanded ? 'expanded' : 'default'"></mat-icon>
+          }
+        }
+      </button>
+      <mat-checkbox
+        #checkbox="matCheckbox"
+        [checked]="leafDescendantsAllSelected(node)"
+        [indeterminate]="leafDescendantsPartiallySelected(node, checkbox.checked)"
+        (change)="nodeSelectionToggle(node, $event)"
+      >
+        <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNodeContext(node) }"></ng-container>
       </mat-checkbox>
-    </ng-template>
-  </mat-tree-node>
-
-  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-    <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.item" class="folder-button">
-      <mat-icon class="mat-icon-rtl-mirror">
-        {{ treeControl.isExpanded(node) ? 'folder_open' : 'folder' }}
-      </mat-icon>
-    </button>
-    <mat-checkbox
-      [checked]="descendantsAllSelected(node)"
-      [indeterminate]="descendantsPartiallySelected(node)"
-      (change)="nodeSelectionToggle(node, $event)"
-    >
-      <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNode(node) }"></ng-container>
-    </mat-checkbox>
-  </mat-tree-node>
-</mat-tree>
-
-<ng-template #nogitlabs>
+    </mat-tree-node>
+  </mat-tree>
+} @else {
   <p>No gitlabs configured yet</p>
-</ng-template>
+}
 
 <ng-template #nodeTmpl let-displayed>
-  <ng-container *ngIf="displayed.isLink; else noLink">
-    <div class="gitlab-name-label">
-      <div class="load-dt mat-body-small">{{ loadDtById?.[displayed.id] | date: 'yyyy-MM-dd HH:mm:ss' }}</div>
-      <a [attr.href]="displayed.value" target="_blank">
-        {{ displayed.value }}
-      </a>
-      <button mat-button *ngIf="displayed.id" [disabled]="dataLoading?.[displayed.id]" (click)="reloadGitlab.emit(displayed.id)">
-        <mat-icon>refresh</mat-icon>
-        reload
-      </button>
-    </div>
-  </ng-container>
-  <ng-template #noLink>
-    {{ displayed.value }}
-    <span *ngIf="displayed.qty" class="badge">{{ displayed.qty }}</span>
-  </ng-template>
+  @if (displayed !== null) {
+    @if (displayed.isLink) {
+      <div class="gitlab-name-label">
+        <div class="load-dt mat-body-small">{{ loadDtById?.[displayed.id] | date: 'yyyy-MM-dd HH:mm:ss' }}</div>
+        <a [attr.href]="displayed.value" target="_blank">
+          {{ displayed.value }}
+        </a>
+        @if (displayed.id) {
+          @if (displayed.leafQty === 0) {
+            <button mat-button [disabled]="dataLoading?.[displayed.id]" (click)="loadGitlab.emit(displayed.id)">
+              <mat-icon>download</mat-icon>
+              load
+            </button>
+          } @else {
+            <button mat-button [disabled]="dataLoading?.[displayed.id]" (click)="reloadGitlab.emit(displayed.id)">
+              <mat-icon>refresh</mat-icon>
+              reload
+            </button>
+          }
+        }
+      </div>
+    } @else {
+      {{ displayed.value }}
+      @if (displayed.qty) {
+        <span class="badge">{{ displayed.qty }}</span>
+      }
+    }
+  } @else {
+    <span>Unknown node</span>
+  }
 </ng-template>
