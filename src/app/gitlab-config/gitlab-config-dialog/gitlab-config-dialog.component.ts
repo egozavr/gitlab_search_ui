@@ -13,7 +13,6 @@ import { GitlabConfigQuery } from '../state/gitlab-config.query';
   selector: 'app-gitlab-config-dialog',
   templateUrl: './gitlab-config-dialog.component.html',
   styleUrls: ['./gitlab-config-dialog.component.scss'],
-  standalone: true,
   imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatButton, MatIcon, GitlabConfigItemComponent, AsyncPipe],
 })
 export class GitlabConfigDialogComponent {

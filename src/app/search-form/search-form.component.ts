@@ -57,7 +57,6 @@ interface NodeDisplayContext {
       transition('default => expanded', animate('225ms ease-in')),
     ]),
   ],
-  standalone: true,
   imports: [
     MatFormField,
     MatInput,

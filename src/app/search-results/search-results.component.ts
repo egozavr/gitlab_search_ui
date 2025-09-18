@@ -7,7 +7,6 @@ import { SearchResult } from '../search-result/state/search-result.model';
   templateUrl: './search-results.component.html',
   styleUrls: ['./search-results.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
   imports: [MatCard],
 })
 export class SearchResultsComponent {

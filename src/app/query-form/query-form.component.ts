@@ -12,7 +12,6 @@ import { SearchProgress } from '../search-result/state/search-result.store';
   templateUrl: './query-form.component.html',
   styleUrls: ['./query-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
   imports: [ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatError, MatButton, MatIcon, MatProgressBar],
 })
 export class QueryFormComponent {

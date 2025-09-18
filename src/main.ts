@@ -1,7 +1,7 @@
 import { CdkTreeModule } from '@angular/cdk/tree';
 import { CommonModule } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { enableProdMode, ENVIRONMENT_INITIALIZER, importProvidersFrom, inject, NgZone } from '@angular/core';
+import { enableProdMode, importProvidersFrom, inject, NgZone, provideEnvironmentInitializer } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -85,23 +85,18 @@ bootstrapApplication(AppComponent, {
       provide: AKITA_PERSIST_STORAGE,
       useValue: storage,
     },
-    {
-      provide: ENVIRONMENT_INITIALIZER,
-      multi: true,
-      useFactory() {
+    provideEnvironmentInitializer(() => {
+      const initializerFn = (() => {
         return () => (environment.production ? null : akitaDevtools(inject(NgZone)));
-      },
-    },
-    {
-      provide: ENVIRONMENT_INITIALIZER,
-      multi: true,
-      useValue: (): void => {
-        const sanitizer = inject(DomSanitizer);
-        const iconRegistry = inject(MatIconRegistry);
-        iconRegistry.setDefaultFontSetClass('material-symbols-outlined');
-        iconRegistry.addSvgIconSetInNamespace('gitlab', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/gitlab-icon-set.svg'));
-      },
-    },
+      })();
+      return initializerFn();
+    }),
+    provideEnvironmentInitializer((): void => {
+      const sanitizer = inject(DomSanitizer);
+      const iconRegistry = inject(MatIconRegistry);
+      iconRegistry.setDefaultFontSetClass('material-symbols-outlined');
+      iconRegistry.addSvgIconSetInNamespace('gitlab', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/gitlab-icon-set.svg'));
+    }),
     provideHttpClient(withInterceptors([httpErrorInterceptor])),
     provideAnimations(),
   ],

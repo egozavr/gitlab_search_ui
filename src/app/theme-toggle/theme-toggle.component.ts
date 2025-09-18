@@ -8,7 +8,6 @@ import { ThemeMode } from '../gitlab-config/state/gitlab-config.store';
   selector: 'app-theme-toggle',
   templateUrl: './theme-toggle.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
   imports: [MatIconButton, MatMenuTrigger, MatIcon, MatMenu, MatMenuItem],
 })
 export class ThemeToggleComponent {

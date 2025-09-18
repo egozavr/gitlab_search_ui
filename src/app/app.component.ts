@@ -30,7 +30,6 @@ import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
   imports: [
     MatSidenavContainer,
     MatSidenav,

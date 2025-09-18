@@ -12,7 +12,6 @@ import { GitlabConfigService } from '../state/gitlab-config.service';
   templateUrl: './gitlab-config-item.component.html',
   styleUrls: ['./gitlab-config-item.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
   imports: [MatIconButton, MatIcon, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatSuffix],
 })
 export class GitlabConfigItemComponent implements OnInit {
