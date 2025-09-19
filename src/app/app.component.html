@@ -6,7 +6,7 @@
       </button>
       <span class="mat-title-large">Gitlab Search</span>
       <span class="spacer"></span>
-      <app-theme-toggle [mode]="themeMode$ | async" (setMode)="setThemeMode($event)"></app-theme-toggle>
+      <app-theme-toggle [mode]="themeMode$ | async" (setMode)="setThemeMode($event)" />
     </div>
     <app-search-form
       [gitlabConfigs]="gitlabConfigs$ | async"
@@ -17,7 +17,7 @@
       (reloadGitlab)="reloadGitlabData($event)"
       (projectsSelected)="updateSelectedProjects($event)"
       (withArchivedChange)="onWithArchivedChange($event)"
-    ></app-search-form>
+    />
   </mat-sidenav>
   <mat-sidenav-content>
     <div class="search-card-container">
@@ -27,9 +27,15 @@
           [searchProgress]="searchProgress$ | async"
           (query)="search($event)"
           (stopSearch)="onStopSearchEvent()"
-        ></app-query-form>
+        />
       </mat-card>
     </div>
-    <app-search-results [results]="searchResults$ | async" [query]="searchQuery$ | async"></app-search-results>
+
+    <mat-card class="search-results">
+      @let query = searchQuery$ | async;
+      @for (result of searchResults$ | async; track $index) {
+        <app-search-result [result]="result" [query]="query" />
+      }
+    </mat-card>
   </mat-sidenav-content>
 </mat-sidenav-container>

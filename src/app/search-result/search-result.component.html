@@ -1,0 +1,6 @@
+<div class="result-item">
+  @let res = result();
+  <header class="mat-title-medium">{{ res.gitlabURL }} {{ res.projectName }}</header>
+  <a [attr.href]="url()" target="_blank">{{ res.path }}</a>
+  <pre><code [highlight]="res.data" [language]="lang()" lineNumbers [startFrom]="res.startline" class="custom-scrollbar"></code></pre>
+</div>

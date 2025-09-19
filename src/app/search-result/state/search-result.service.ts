@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { inject, Injectable, OnDestroy } from '@angular/core';
 import { applyTransaction, guid } from '@datorama/akita';
 import { concat, forkJoin, merge, Observable, of, Subject } from 'rxjs';
 import { catchError, finalize, map, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -13,16 +13,13 @@ import { SearchResultStore } from './search-result.store';
 
 @Injectable({ providedIn: 'root' })
 export class SearchResultService implements OnDestroy {
+  private searchResultStore = inject(SearchResultStore);
+  private gitlabApi = inject(GitlabApiService);
+  private configQuery = inject(GitlabConfigQuery);
+  private configSrv = inject(GitlabConfigService);
+  private gitlabProjectsQuery = inject(GitlabProjectsQuery);
   private destroy$ = new Subject<void>();
   private stopSearching$ = new Subject<void>();
-
-  constructor(
-    private searchResultStore: SearchResultStore,
-    private gitlabApi: GitlabApiService,
-    private configQuery: GitlabConfigQuery,
-    private configSrv: GitlabConfigService,
-    private gitlabProjectsQuery: GitlabProjectsQuery,
-  ) {}
 
   search(query: string): void {
     const { searchProjects } = this.gitlabProjectsQuery.getValue();

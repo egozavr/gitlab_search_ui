@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, booleanAttribute, inject, input, output, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIconButton } from '@angular/material/button';
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
@@ -12,16 +12,17 @@ import { GitlabConfigService } from '../state/gitlab-config.service';
   templateUrl: './gitlab-config-item.component.html',
   styleUrls: ['./gitlab-config-item.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
   imports: [MatIconButton, MatIcon, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatSuffix],
 })
 export class GitlabConfigItemComponent implements OnInit {
   configForm: FormGroup;
-  @Input() editMode = false;
-  @Input() gitlabConfig: GitlabConfig;
-  @Output() cancelEdit = new EventEmitter<void>();
+  readonly initEdit = input(false, { transform: booleanAttribute });
+  editMode = signal(this.initEdit());
 
-  constructor(private gitlabConfigService: GitlabConfigService) {}
+  readonly gitlabConfig = input<GitlabConfig>(undefined);
+  readonly cancelEdit = output<void>();
+
+  private gitlabConfigService = inject(GitlabConfigService);
 
   ngOnInit(): void {
     this.configForm = new FormGroup({
@@ -33,18 +34,19 @@ export class GitlabConfigItemComponent implements OnInit {
 
   changeMode(toEdit: boolean): void {
     if (toEdit) {
-      if (this.gitlabConfig) {
+      const gitlabConfig = this.gitlabConfig();
+      if (gitlabConfig) {
         this.configForm.setValue({
-          gitlabURL: this.gitlabConfig.gitlabURL,
-          rateLimit: this.gitlabConfig.rateLimit || null,
-          token: this.gitlabConfig.token,
+          gitlabURL: gitlabConfig.gitlabURL,
+          rateLimit: gitlabConfig.rateLimit || null,
+          token: gitlabConfig.token,
         });
       }
-      this.editMode = true;
+      this.editMode.set(true);
     } else {
       this.configForm.reset();
-      this.editMode = false;
-      this.cancelEdit.emit();
+      this.editMode.set(false);
+      this.cancelEdit.emit(void null);
     }
   }
 
@@ -56,8 +58,9 @@ export class GitlabConfigItemComponent implements OnInit {
     if (toSave.rateLimit === 0) {
       toSave.rateLimit = null;
     }
-    if (this.gitlabConfig && this.gitlabConfig.id) {
-      this.gitlabConfigService.update(this.gitlabConfig.id, toSave);
+    const gitlabConfig = this.gitlabConfig();
+    if (gitlabConfig && gitlabConfig.id) {
+      this.gitlabConfigService.update(gitlabConfig.id, toSave);
     } else {
       this.gitlabConfigService.add(toSave);
     }
@@ -65,9 +68,10 @@ export class GitlabConfigItemComponent implements OnInit {
   }
 
   delete(): void {
-    if (!this.gitlabConfig) {
+    const gitlabConfig = this.gitlabConfig();
+    if (!gitlabConfig) {
       return;
     }
-    this.gitlabConfigService.remove(this.gitlabConfig.id);
+    this.gitlabConfigService.remove(gitlabConfig.id);
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { inject, Injectable, OnDestroy } from '@angular/core';
 import { applyTransaction, guid, selectPersistStateInit } from '@datorama/akita';
 import { forkJoin, Observable, of, Subject } from 'rxjs';
 import { catchError, takeUntil, withLatestFrom } from 'rxjs/operators';
@@ -10,14 +10,14 @@ import { GitlabConfigStore, StoredFilter, ThemeMode } from './gitlab-config.stor
 
 @Injectable({ providedIn: 'root' })
 export class GitlabConfigService implements OnDestroy {
+  private store = inject(GitlabConfigStore);
+  private query = inject(GitlabConfigQuery);
+  private api = inject(GitlabApiService);
+
   private destroy$ = new Subject<void>();
   private rateLimiControllers = new Map<string, RateLimitController>();
 
-  constructor(
-    private store: GitlabConfigStore,
-    private query: GitlabConfigQuery,
-    private api: GitlabApiService,
-  ) {
+  constructor() {
     selectPersistStateInit()
       .pipe(withLatestFrom(this.query.selectAll()), takeUntil(this.destroy$))
       .subscribe(([, configs]) => {

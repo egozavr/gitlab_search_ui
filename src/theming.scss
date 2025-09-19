@@ -22,7 +22,7 @@
   @if $is-dark {
     --mat-sidenav-container-background-color: #{mat.get-theme-color($theme, neutral, 17)};
     --mat-tree-container-background-color: #{mat.get-theme-color($theme, neutral, 17)};
-    --mdc-elevated-card-container-color: #{mat.get-theme-color($theme, neutral, 17)};
+    --mat-card-elevated-container-color: #{mat.get-theme-color($theme, neutral, 17)};
   } @else {
     --mat-sidenav-content-background-color: #{mat.get-theme-color($theme, surface-dim)};
   }
@@ -34,11 +34,13 @@
   --mat-theme-body-small-fontsize: #{mat.get-theme-typography($theme, body-small, font-size)};
 }
 
-@include mat.core();
+@include mat.elevation-classes();
+@include mat.app-background();
 @include mat.typography-hierarchy(m3-theme.$dark-theme);
 
 @mixin _apply-light-colors() {
-  @include mat.core-color(m3-theme.$light-theme);
+  @include mat.elevation-classes();
+  @include mat.app-background();
   @include mat.button-color(m3-theme.$light-theme);
   @include mat.card-color(m3-theme.$light-theme);
   @include mat.checkbox-color(m3-theme.$light-theme);
@@ -59,7 +61,8 @@
 }
 
 body {
-  @include mat.core-theme(m3-theme.$dark-theme);
+  @include mat.elevation-classes();
+  @include mat.app-background();
   @include mat.button-theme(m3-theme.$dark-theme);
   @include mat.card-theme(m3-theme.$dark-theme);
   @include mat.checkbox-theme(m3-theme.$dark-theme);

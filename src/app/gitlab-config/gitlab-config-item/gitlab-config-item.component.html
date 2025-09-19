@@ -1,8 +1,8 @@
-@if (gitlabConfig && !editMode) {
+@if (gitlabConfig() && !editMode()) {
   <div class="item">
-    <span class="url">{{ gitlabConfig.gitlabURL }}</span>
-    @if (gitlabConfig.rateLimit) {
-      <span>rateLimit: {{ gitlabConfig.rateLimit }} rpm</span>
+    <span class="url">{{ gitlabConfig().gitlabURL }}</span>
+    @if (gitlabConfig().rateLimit) {
+      <span>rateLimit: {{ gitlabConfig().rateLimit }} rpm</span>
     }
     <span class="spacer"></span>
     <button mat-icon-button (click)="changeMode(true)">
@@ -14,7 +14,7 @@
   </div>
 }
 
-@if (editMode) {
+@if (editMode()) {
   <form [formGroup]="configForm" (ngSubmit)="save()">
     <mat-form-field appearance="outline" class="url">
       <mat-label>URL</mat-label>

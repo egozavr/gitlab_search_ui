@@ -1,6 +1,5 @@
-import { animate, state, style, transition, trigger } from '@angular/animations';
 import { AsyncPipe, DatePipe, NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, Input, input, OnInit, output, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
@@ -49,15 +48,6 @@ interface NodeDisplayContext {
   templateUrl: './search-form.component.html',
   styleUrls: ['./search-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  animations: [
-    trigger('expandedState', [
-      state('default', style({ transform: 'rotate(0)' })),
-      state('expanded', style({ transform: 'rotate(90deg)' })),
-      transition('expanded => default', animate('225ms ease-out')),
-      transition('default => expanded', animate('225ms ease-in')),
-    ]),
-  ],
-  standalone: true,
   imports: [
     MatFormField,
     MatInput,
@@ -91,8 +81,8 @@ export class SearchFormComponent implements OnInit {
       this.loadDtById[item.id] = item.loadDt;
     });
   }
-
-  @Input() dataLoading: Record<string, boolean>;
+  readonly dataLoading = input<Record<string, boolean>>(undefined);
+  readonly withArchived = input<boolean>(undefined);
 
   private gitlabUrlByID: Record<string, string>;
   @Input() set gitlabConfigs(v: GitlabConfig[]) {
@@ -102,14 +92,12 @@ export class SearchFormComponent implements OnInit {
     });
   }
 
-  @Input() withArchived: boolean;
+  readonly loadGitlab = output<string>();
+  readonly reloadGitlab = output<string>();
+  readonly projectsSelected = output<GitlabProject[]>();
+  readonly withArchivedChange = output<boolean>();
 
-  @Output() loadGitlab = new EventEmitter<string>();
-  @Output() reloadGitlab = new EventEmitter<string>();
-  @Output() projectsSelected = new EventEmitter<GitlabProject[]>();
-  @Output() withArchivedChange = new EventEmitter<boolean>();
-
-  @ViewChild(MatTree) private tree: MatTree<GitlabEntityNode>;
+  private readonly tree = viewChild.required(MatTree);
 
   loadDtById: Record<string, string | null> = {};
 
@@ -156,7 +144,7 @@ export class SearchFormComponent implements OnInit {
       this.dataSource.next(nodes);
       if (query !== '') {
         nodes.forEach(node => {
-          this.tree?.expandDescendants(node);
+          this.tree().expandDescendants(node);
           this.nodeSelection.select(...node.leafDescendants.keys());
         });
       }
@@ -181,7 +169,7 @@ export class SearchFormComponent implements OnInit {
   }
 
   getNodeDataLoading(node: GitlabEntityNode): boolean {
-    return typeof node.item === 'string' && this.dataLoading[node.item];
+    return typeof node.item === 'string' && this.dataLoading()[node.item];
   }
 
   /** Whether all the descendants of the node are selected. */

@@ -5,10 +5,10 @@
     Add GitLab
   </button>
   @for (nothing of openedAddForms; track $index; let i = $index) {
-    <app-gitlab-config-item [editMode]="true" (cancelEdit)="removeForm(i)"></app-gitlab-config-item>
+    <app-gitlab-config-item initEdit (cancelEdit)="removeForm(i)" />
   }
   @for (config of configs$ | async; track config) {
-    <app-gitlab-config-item [gitlabConfig]="config"></app-gitlab-config-item>
+    <app-gitlab-config-item [gitlabConfig]="config" />
   }
 </mat-dialog-content>
-<ng-template></ng-template>
+<ng-template />
