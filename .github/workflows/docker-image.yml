@@ -45,9 +45,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Add SHORT_SHA env property with commit short sha
-        run: |
-          echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV \
-          echo "PACKAGE_VERSION=`cat package.json | grep '"version"' | cut -d'"' -f4`" >> $GITHUB_ENV
+        run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+      - name: Add PACKAGE_VERSION env property with package version
+        run: echo "PACKAGE_VERSION=`cat package.json | grep '"version"' | cut -d'"' -f4`" >> $GITHUB_ENV
       - name: Download built app
         uses: actions/download-artifact@v4
         with:
@@ -59,4 +59,4 @@ jobs:
         with:
           push: true
           context: .
-          tags: egozavr/gitlab-search-ui:${{ env.SHORT_SHA }},egozavr/gitlab-search-ui:${{ env.PACKAGE_VERSION }},egozavr/gitlab-search-ui:latest
+          tags: egozavr/gitlab-search-ui:${{ env.SHORT_SHA }},egozavr/gitlab-search-ui:v${{ env.PACKAGE_VERSION }},egozavr/gitlab-search-ui:latest
