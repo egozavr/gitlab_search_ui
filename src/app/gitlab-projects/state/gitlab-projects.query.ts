@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { EntityUIQuery, QueryEntity } from '@datorama/akita';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -7,10 +7,15 @@ import { GitlabProjectsState, GitlabProjectsStore, GitlabProjectsUIState } from 
 
 @Injectable({ providedIn: 'root' })
 export class GitlabProjectsQuery extends QueryEntity<GitlabProjectsState> {
+  protected store: GitlabProjectsStore;
+
   ui: EntityUIQuery<GitlabProjectsUIState>;
 
-  constructor(protected store: GitlabProjectsStore) {
+  constructor() {
+    const store = inject(GitlabProjectsStore);
     super(store);
+    this.store = store;
+
     this.createUIQuery();
   }
 

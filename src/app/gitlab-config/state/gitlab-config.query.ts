@@ -1,12 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { QueryEntity } from '@datorama/akita';
 import { Observable } from 'rxjs';
 import { GitlabConfigState, GitlabConfigStore, ThemeMode } from './gitlab-config.store';
 
 @Injectable({ providedIn: 'root' })
 export class GitlabConfigQuery extends QueryEntity<GitlabConfigState> {
-  constructor(protected store: GitlabConfigStore) {
+  protected store: GitlabConfigStore;
+
+  constructor() {
+    const store = inject(GitlabConfigStore);
     super(store);
+    this.store = store;
   }
 
   selectThemeMode(): Observable<ThemeMode> {

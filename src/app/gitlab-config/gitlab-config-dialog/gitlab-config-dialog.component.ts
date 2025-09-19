@@ -1,6 +1,6 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { AsyncPipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
@@ -19,7 +19,8 @@ export class GitlabConfigDialogComponent {
   configs$: Observable<GitlabConfig[]>;
   openedAddForms: true[] = [];
 
-  constructor(gitlabConfigQuery: GitlabConfigQuery) {
+  constructor() {
+    const gitlabConfigQuery = inject(GitlabConfigQuery);
     this.configs$ = gitlabConfigQuery.selectAll();
   }
 

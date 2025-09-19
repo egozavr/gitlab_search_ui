@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import { GitlabConfig, GitlabVersion } from './gitlab-config/state/gitlab-config.model';
@@ -24,7 +24,7 @@ const defaultProjReqOpts: ProjectRequestOptions = {
   providedIn: 'root',
 })
 export class GitlabApiService {
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
 
   getVersion(config: Omit<GitlabConfig, 'id'>): Observable<GitlabVersion> {
     return this.http.get<GitlabVersion>(`${this.getApiV4URL(config)}/version`, {

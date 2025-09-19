@@ -1,6 +1,6 @@
 import { MediaMatcher } from '@angular/cdk/layout';
 import { AsyncPipe, DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -48,7 +48,6 @@ import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'gitlab-search-ui';
-
   gitlabConfigs$: Observable<GitlabConfig[]>;
   gitlabItems$: Observable<GitlabData[]>;
   gitladDataLoading$: Observable<Record<string, boolean>>;
@@ -59,22 +58,22 @@ export class AppComponent implements OnInit, OnDestroy {
   withArchived$: Observable<boolean>;
   searchQuery$: Observable<string>;
 
+  private configSrv = inject(GitlabConfigService);
+  private gitlabProjectsSrv = inject(GitlabProjectsService);
+  private configQuery = inject(GitlabConfigQuery);
+  private gitlabProjectsQuery = inject(GitlabProjectsQuery);
+  private searchResultsSrv = inject(SearchResultService);
+  private searchResultsQuery = inject(SearchResultQuery);
+  private dialog = inject(MatDialog);
+  private hljsLoader = inject(HighlightLoader);
+  private mediaMatcher = inject(MediaMatcher);
+  private doc = inject<Document>(DOCUMENT);
+
   private destroy$ = new Subject<void>();
   private readonly darkHighlightTheme = '/assets/themes/stackoverflow-dark.min.css';
   private readonly lightHighlightTheme = '/assets/themes/stackoverflow-light.min.css';
 
-  constructor(
-    private configSrv: GitlabConfigService,
-    private gitlabProjectsSrv: GitlabProjectsService,
-    private configQuery: GitlabConfigQuery,
-    private gitlabProjectsQuery: GitlabProjectsQuery,
-    private searchResultsSrv: SearchResultService,
-    private searchResultsQuery: SearchResultQuery,
-    private dialog: MatDialog,
-    private hljsLoader: HighlightLoader,
-    private mediaMatcher: MediaMatcher,
-    @Inject(DOCUMENT) private doc: Document,
-  ) {
+  constructor() {
     this.gitlabItems$ = this.gitlabProjectsQuery.selectAll();
     this.gitladDataLoading$ = this.gitlabProjectsQuery.dataLoading();
     this.gitlabConfigs$ = this.configQuery.selectAll();

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIconButton } from '@angular/material/button';
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
@@ -20,7 +20,7 @@ export class GitlabConfigItemComponent implements OnInit {
   @Input() gitlabConfig: GitlabConfig;
   @Output() cancelEdit = new EventEmitter<void>();
 
-  constructor(private gitlabConfigService: GitlabConfigService) {}
+  private gitlabConfigService = inject(GitlabConfigService);
 
   ngOnInit(): void {
     this.configForm = new FormGroup({

@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 import { applyTransaction } from '@datorama/akita';
 import { Observable, Subject, throwError } from 'rxjs';
 import { finalize, map, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -11,13 +11,13 @@ import { GitlabProjectsStore } from './gitlab-projects.store';
 
 @Injectable({ providedIn: 'root' })
 export class GitlabProjectsService implements OnDestroy {
+  private gitlabProjectsStore = inject(GitlabProjectsStore);
+  private gitlabProjectsQuery = inject(GitlabProjectsQuery);
+  private configQuery = inject(GitlabConfigQuery);
+  private gitlabApi = inject(GitlabApiService);
   private destroy$ = new Subject<void>();
-  constructor(
-    private gitlabProjectsStore: GitlabProjectsStore,
-    private gitlabProjectsQuery: GitlabProjectsQuery,
-    private configQuery: GitlabConfigQuery,
-    private gitlabApi: GitlabApiService,
-  ) {
+
+  constructor() {
     this.configQuery
       .selectAll()
       .pipe(withLatestFrom(this.gitlabProjectsQuery.selectAll()), takeUntil(this.destroy$))
