@@ -1,5 +1,5 @@
 import { AsyncPipe, DatePipe, NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, Input, input, OnInit, output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, Input, input, OnInit, output, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
@@ -97,7 +97,7 @@ export class SearchFormComponent implements OnInit {
   readonly projectsSelected = output<GitlabProject[]>();
   readonly withArchivedChange = output<boolean>();
 
-  @ViewChild(MatTree) private tree: MatTree<GitlabEntityNode>;
+  private readonly tree = viewChild.required(MatTree);
 
   loadDtById: Record<string, string | null> = {};
 
@@ -144,7 +144,7 @@ export class SearchFormComponent implements OnInit {
       this.dataSource.next(nodes);
       if (query !== '') {
         nodes.forEach(node => {
-          this.tree?.expandDescendants(node);
+          this.tree().expandDescendants(node);
           this.nodeSelection.select(...node.leafDescendants.keys());
         });
       }
