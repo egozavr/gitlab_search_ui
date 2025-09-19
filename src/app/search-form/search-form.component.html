@@ -12,7 +12,7 @@
   }
 </mat-form-field>
 
-<mat-slide-toggle [checked]="withArchived" hideIcon (change)="withArchivedChange.emit($event.checked)">
+<mat-slide-toggle [checked]="withArchived()" hideIcon (change)="withArchivedChange.emit($event.checked)">
   With archived projects
 </mat-slide-toggle>
 
@@ -86,12 +86,12 @@
         </a>
         @if (displayed.id) {
           @if (displayed.leafQty === 0) {
-            <button mat-button [disabled]="dataLoading?.[displayed.id]" (click)="loadGitlab.emit(displayed.id)">
+            <button mat-button [disabled]="dataLoading()?.[displayed.id]" (click)="loadGitlab.emit(displayed.id)">
               <mat-icon>download</mat-icon>
               load
             </button>
           } @else {
-            <button mat-button [disabled]="dataLoading?.[displayed.id]" (click)="reloadGitlab.emit(displayed.id)">
+            <button mat-button [disabled]="dataLoading()?.[displayed.id]" (click)="reloadGitlab.emit(displayed.id)">
               <mat-icon>refresh</mat-icon>
               reload
             </button>

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Output, effect, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
@@ -15,28 +15,24 @@ import { SearchProgress } from '../search-result/state/search-result.store';
   imports: [ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatError, MatButton, MatIcon, MatProgressBar],
 })
 export class QueryFormComponent {
-  @Input() projectSelected: boolean;
+  readonly projectSelected = input<boolean>(undefined);
+  readonly searchProgress = input<SearchProgress | null>(null);
+  @Output() query = new EventEmitter<string>();
+  @Output() stopSearch = new EventEmitter<void>();
 
   queryForm = new FormGroup({
     query: new FormControl(null, [Validators.required, Validators.minLength(3)]),
   });
 
-  private progress: SearchProgress | null = null;
-  @Input()
-  get searchProgress(): SearchProgress | null {
-    return this.progress;
-  }
-  set searchProgress(progress: SearchProgress | null) {
-    this.progress = progress;
-    if (progress !== null) {
-      this.queryForm.disable();
-    } else {
+  constructor() {
+    effect(() => {
+      if (this.searchProgress() !== null) {
+        this.queryForm.disable();
+        return;
+      }
       this.queryForm.enable();
-    }
+    });
   }
-
-  @Output() query = new EventEmitter<string>();
-  @Output() stopSearch = new EventEmitter<void>();
 
   submit(): void {
     this.query.emit(this.queryForm.value.query);

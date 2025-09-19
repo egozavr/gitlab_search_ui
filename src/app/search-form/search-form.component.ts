@@ -1,5 +1,16 @@
 import { AsyncPipe, DatePipe, NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  EventEmitter,
+  inject,
+  Input,
+  input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
@@ -81,8 +92,8 @@ export class SearchFormComponent implements OnInit {
       this.loadDtById[item.id] = item.loadDt;
     });
   }
-
-  @Input() dataLoading: Record<string, boolean>;
+  readonly dataLoading = input<Record<string, boolean>>(undefined);
+  readonly withArchived = input<boolean>(undefined);
 
   private gitlabUrlByID: Record<string, string>;
   @Input() set gitlabConfigs(v: GitlabConfig[]) {
@@ -91,8 +102,6 @@ export class SearchFormComponent implements OnInit {
       this.gitlabUrlByID[config.id] = config.gitlabURL;
     });
   }
-
-  @Input() withArchived: boolean;
 
   @Output() loadGitlab = new EventEmitter<string>();
   @Output() reloadGitlab = new EventEmitter<string>();
@@ -171,7 +180,7 @@ export class SearchFormComponent implements OnInit {
   }
 
   getNodeDataLoading(node: GitlabEntityNode): boolean {
-    return typeof node.item === 'string' && this.dataLoading[node.item];
+    return typeof node.item === 'string' && this.dataLoading()[node.item];
   }
 
   /** Whether all the descendants of the node are selected. */
