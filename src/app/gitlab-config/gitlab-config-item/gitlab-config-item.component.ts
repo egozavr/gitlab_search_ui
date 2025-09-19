@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, OnInit, Output, booleanAttribute, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, booleanAttribute, inject, input, output, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIconButton } from '@angular/material/button';
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
@@ -20,7 +20,7 @@ export class GitlabConfigItemComponent implements OnInit {
   editMode = signal(this.initEdit());
 
   readonly gitlabConfig = input<GitlabConfig>(undefined);
-  @Output() cancelEdit = new EventEmitter<void>();
+  readonly cancelEdit = output<void>();
 
   private gitlabConfigService = inject(GitlabConfigService);
 
@@ -46,7 +46,7 @@ export class GitlabConfigItemComponent implements OnInit {
     } else {
       this.configForm.reset();
       this.editMode.set(false);
-      this.cancelEdit.emit();
+      this.cancelEdit.emit(void null);
     }
   }
 

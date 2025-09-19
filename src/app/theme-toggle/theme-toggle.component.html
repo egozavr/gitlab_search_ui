@@ -1,5 +1,5 @@
 <button mat-icon-button [matMenuTriggerFor]="menu">
-  <mat-icon>{{ icon }}</mat-icon>
+  <mat-icon>{{ icon() }}</mat-icon>
 </button>
 <mat-menu #menu="matMenu">
   <button mat-menu-item (click)="setMode.emit('auto')">

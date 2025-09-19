@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Output, effect, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, input, output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
@@ -17,8 +17,8 @@ import { SearchProgress } from '../search-result/state/search-result.store';
 export class QueryFormComponent {
   readonly projectSelected = input<boolean>(undefined);
   readonly searchProgress = input<SearchProgress | null>(null);
-  @Output() query = new EventEmitter<string>();
-  @Output() stopSearch = new EventEmitter<void>();
+  readonly query = output<string>();
+  readonly stopSearch = output<void>();
 
   queryForm = new FormGroup({
     query: new FormControl(null, [Validators.required, Validators.minLength(3)]),

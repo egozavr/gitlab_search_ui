@@ -1,16 +1,5 @@
 import { AsyncPipe, DatePipe, NgTemplateOutlet } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  EventEmitter,
-  inject,
-  Input,
-  input,
-  OnInit,
-  Output,
-  ViewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, Input, input, OnInit, output, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
@@ -103,10 +92,10 @@ export class SearchFormComponent implements OnInit {
     });
   }
 
-  @Output() loadGitlab = new EventEmitter<string>();
-  @Output() reloadGitlab = new EventEmitter<string>();
-  @Output() projectsSelected = new EventEmitter<GitlabProject[]>();
-  @Output() withArchivedChange = new EventEmitter<boolean>();
+  readonly loadGitlab = output<string>();
+  readonly reloadGitlab = output<string>();
+  readonly projectsSelected = output<GitlabProject[]>();
+  readonly withArchivedChange = output<boolean>();
 
   @ViewChild(MatTree) private tree: MatTree<GitlabEntityNode>;
 
