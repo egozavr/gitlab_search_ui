@@ -29,7 +29,7 @@
   </form>
   @if (progress !== null) {
     <div class="progress">
-      <mat-progress-bar mode="determinate" [value]="(progress.done / progress.total) * 100"></mat-progress-bar>
+      <mat-progress-bar mode="determinate" [value]="(progress.done / progress.total) * 100" />
       <span class="progress-count theme-warn-color">{{ progress.done }} / {{ progress.total }}</span>
     </div>
   }

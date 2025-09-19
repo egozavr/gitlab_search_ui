@@ -22,19 +22,19 @@
       @if (leafNode.level === 0) {
         <mat-icon class="leaf-level-icon">folder</mat-icon>
       } @else {
-        <mat-icon class="leaf-level-icon" svgIcon="gitlab:project"></mat-icon>
+        <mat-icon class="leaf-level-icon" svgIcon="gitlab:project" />
       }
       @if (getNodeDataLoading(node)) {
         <div class="loading-box">
-          <mat-spinner [diameter]="20"></mat-spinner>
+          <mat-spinner [diameter]="20" />
           <span class="label">
-            <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNodeContext(node) }"></ng-container>
+            <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNodeContext(node) }" />
           </span>
         </div>
       } @else {
         @if (nodeIsGitlabAndNotLoaded(node, leafNode.level)) {
           <span class="gitlab-node-empty">
-            <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNodeContext(node) }"></ng-container>
+            <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNodeContext(node) }" />
           </span>
         } @else {
           <mat-checkbox
@@ -42,7 +42,7 @@
             (change)="nodeSelectionToggle(node, $event, true)"
             class="checklist-leaf-node"
           >
-            <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNodeContext(node) }"></ng-container>
+            <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNodeContext(node) }" />
           </mat-checkbox>
         }
       }
@@ -55,10 +55,10 @@
             <mat-icon>{{ parentNode.isExpanded ? 'folder_open' : 'folder' }}</mat-icon>
           }
           @case (1) {
-            <mat-icon svgIcon="gitlab:group" [class.expanded]="parentNode.isExpanded"></mat-icon>
+            <mat-icon svgIcon="gitlab:group" [class.expanded]="parentNode.isExpanded" />
           }
           @default {
-            <mat-icon svgIcon="gitlab:subgroup" [class.expanded]="parentNode.isExpanded"></mat-icon>
+            <mat-icon svgIcon="gitlab:subgroup" [class.expanded]="parentNode.isExpanded" />
           }
         }
       </button>
@@ -68,7 +68,7 @@
         [indeterminate]="leafDescendantsPartiallySelected(node, checkbox.checked)"
         (change)="nodeSelectionToggle(node, $event)"
       >
-        <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNodeContext(node) }"></ng-container>
+        <ng-container *ngTemplateOutlet="nodeTmpl; context: { $implicit: displayNodeContext(node) }" />
       </mat-checkbox>
     </mat-tree-node>
   </mat-tree>
