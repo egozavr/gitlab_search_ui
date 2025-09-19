@@ -32,6 +32,15 @@
   color: var(--mat-theme-primary-color);
 }
 
+.group-button {
+  .mat-icon {
+    transition: transform 250ms ease-in-out;
+    &.expanded {
+      transform: rotate(90deg);
+    }
+  }
+}
+
 .leaf-level-icon {
   padding: 12px;
 }

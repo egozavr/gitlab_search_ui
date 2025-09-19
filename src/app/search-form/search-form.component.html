@@ -55,10 +55,10 @@
             <mat-icon>{{ parentNode.isExpanded ? 'folder_open' : 'folder' }}</mat-icon>
           }
           @case (1) {
-            <mat-icon svgIcon="gitlab:group" [@expandedState]="parentNode.isExpanded ? 'expanded' : 'default'"></mat-icon>
+            <mat-icon svgIcon="gitlab:group" [class.expanded]="parentNode.isExpanded"></mat-icon>
           }
           @default {
-            <mat-icon svgIcon="gitlab:subgroup" [@expandedState]="parentNode.isExpanded ? 'expanded' : 'default'"></mat-icon>
+            <mat-icon svgIcon="gitlab:subgroup" [class.expanded]="parentNode.isExpanded"></mat-icon>
           }
         }
       </button>

@@ -1,4 +1,3 @@
-import { animate, state, style, transition, trigger } from '@angular/animations';
 import { AsyncPipe, DatePipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -49,14 +48,6 @@ interface NodeDisplayContext {
   templateUrl: './search-form.component.html',
   styleUrls: ['./search-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  animations: [
-    trigger('expandedState', [
-      state('default', style({ transform: 'rotate(0)' })),
-      state('expanded', style({ transform: 'rotate(90deg)' })),
-      transition('expanded => default', animate('225ms ease-out')),
-      transition('default => expanded', animate('225ms ease-in')),
-    ]),
-  ],
   imports: [
     MatFormField,
     MatInput,

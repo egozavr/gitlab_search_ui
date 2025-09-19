@@ -21,7 +21,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTreeModule } from '@angular/material/tree';
 import { bootstrapApplication, BrowserModule, DomSanitizer } from '@angular/platform-browser';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import { akitaDevtools, persistState, PersistStateSelectFn } from '@datorama/akita';
 import { AppComponent } from './app/app.component';
 import { GitlabProjectsState, GitlabProjectsUIState } from './app/gitlab-projects/state/gitlab-projects.store';
@@ -81,10 +80,7 @@ bootstrapApplication(AppComponent, {
       MatTreeModule,
       ReactiveFormsModule,
     ),
-    {
-      provide: AKITA_PERSIST_STORAGE,
-      useValue: storage,
-    },
+    { provide: AKITA_PERSIST_STORAGE, useValue: storage },
     provideEnvironmentInitializer(() => {
       const initializerFn = (() => {
         return () => (environment.production ? null : akitaDevtools(inject(NgZone)));
@@ -98,6 +94,5 @@ bootstrapApplication(AppComponent, {
       iconRegistry.addSvgIconSetInNamespace('gitlab', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/gitlab-icon-set.svg'));
     }),
     provideHttpClient(withInterceptors([httpErrorInterceptor])),
-    provideAnimations(),
   ],
 }).catch(err => console.error(err));
