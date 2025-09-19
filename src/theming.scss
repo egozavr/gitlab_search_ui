@@ -22,7 +22,7 @@
   @if $is-dark {
     --mat-sidenav-container-background-color: #{mat.get-theme-color($theme, neutral, 17)};
     --mat-tree-container-background-color: #{mat.get-theme-color($theme, neutral, 17)};
-    --mdc-elevated-card-container-color: #{mat.get-theme-color($theme, neutral, 17)};
+    --mat-card-elevated-container-color: #{mat.get-theme-color($theme, neutral, 17)};
   } @else {
     --mat-sidenav-content-background-color: #{mat.get-theme-color($theme, surface-dim)};
   }
