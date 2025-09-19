@@ -22,6 +22,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTreeModule } from '@angular/material/tree';
 import { bootstrapApplication, BrowserModule, DomSanitizer } from '@angular/platform-browser';
 import { akitaDevtools, persistState, PersistStateSelectFn } from '@datorama/akita';
+import { provideHighlightOptions } from 'ngx-highlightjs';
 import { AppComponent } from './app/app.component';
 import { GitlabProjectsState, GitlabProjectsUIState } from './app/gitlab-projects/state/gitlab-projects.store';
 import { httpErrorInterceptor } from './app/http-error.interceptor';
@@ -94,5 +95,36 @@ bootstrapApplication(AppComponent, {
       iconRegistry.addSvgIconSetInNamespace('gitlab', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/gitlab-icon-set.svg'));
     }),
     provideHttpClient(withInterceptors([httpErrorInterceptor])),
+    provideHighlightOptions({
+      coreLibraryLoader: () => import('highlight.js/lib/core'),
+      lineNumbersLoader: () => import('ngx-highlightjs/line-numbers'),
+      languages: {
+        bash: () => import('highlight.js/lib/languages/bash'),
+        c: () => import('highlight.js/lib/languages/c'),
+        cpp: () => import('highlight.js/lib/languages/cpp'),
+        css: () => import('highlight.js/lib/languages/css'),
+        dart: () => import('highlight.js/lib/languages/dart'),
+        dockerfile: () => import('highlight.js/lib/languages/dockerfile'),
+        go: () => import('highlight.js/lib/languages/go'),
+        java: () => import('highlight.js/lib/languages/java'),
+        javascript: () => import('highlight.js/lib/languages/javascript'),
+        json: () => import('highlight.js/lib/languages/json'),
+        kotlin: () => import('highlight.js/lib/languages/kotlin'),
+        lua: () => import('highlight.js/lib/languages/lua'),
+        markdown: () => import('highlight.js/lib/languages/markdown'),
+        php: () => import('highlight.js/lib/languages/php'),
+        protobuf: () => import('highlight.js/lib/languages/protobuf'),
+        python: () => import('highlight.js/lib/languages/python'),
+        ruby: () => import('highlight.js/lib/languages/ruby'),
+        rust: () => import('highlight.js/lib/languages/rust'),
+        scss: () => import('highlight.js/lib/languages/scss'),
+        sql: () => import('highlight.js/lib/languages/sql'),
+        swift: () => import('highlight.js/lib/languages/swift'),
+        plaintext: () => import('highlight.js/lib/languages/plaintext'),
+        typescript: () => import('highlight.js/lib/languages/typescript'),
+        xml: () => import('highlight.js/lib/languages/xml'),
+        yaml: () => import('highlight.js/lib/languages/yaml'),
+      },
+    }),
   ],
 }).catch(err => console.error(err));

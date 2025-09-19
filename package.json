@@ -10,12 +10,6 @@
     "lint": "npx ng lint"
   },
   "private": true,
-  "prettier": {
-    "printWidth": 140,
-    "singleQuote": true,
-    "arrowParens": "avoid",
-    "htmlWhitespaceSensitivity": "ignore"
-  },
   "dependencies": {
     "@angular/cdk": "20.2.4",
     "@angular/common": "20.3.1",

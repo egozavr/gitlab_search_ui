@@ -23,9 +23,18 @@
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "assets": ["src/favicon.ico", "src/assets"],
+            "assets": [
+              "src/favicon.ico",
+              "src/assets",
+              {
+                "glob": "{stackoverflow-light.min,stackoverflow-dark.min}.css",
+                "input": "node_modules/highlight.js/styles",
+                "output": "/assets/themes/"
+              }
+            ],
             "styles": ["src/theming.scss", "src/styles.scss"],
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": ["highlight.js"]
           },
           "configurations": {
             "production": {

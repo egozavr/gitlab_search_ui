@@ -1,3 +1,4 @@
+import { MediaMatcher } from '@angular/cdk/layout';
 import { AsyncPipe, DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
@@ -6,8 +7,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
 import { applyTransaction } from '@datorama/akita';
-import { Observable, Subject } from 'rxjs';
-import { take, takeUntil } from 'rxjs/operators';
+import { HighlightLoader } from 'ngx-highlightjs';
+import { combineLatest, fromEvent, Observable, Subject } from 'rxjs';
+import { map, startWith, take, takeUntil } from 'rxjs/operators';
 import { GitlabConfigDialogComponent } from './gitlab-config/gitlab-config-dialog/gitlab-config-dialog.component';
 import { GitlabConfig } from './gitlab-config/state/gitlab-config.model';
 import { GitlabConfigQuery } from './gitlab-config/state/gitlab-config.query';
@@ -18,11 +20,11 @@ import { GitlabProjectsQuery } from './gitlab-projects/state/gitlab-projects.que
 import { GitlabProjectsService } from './gitlab-projects/state/gitlab-projects.service';
 import { QueryFormComponent } from './query-form/query-form.component';
 import { SearchFormComponent } from './search-form/search-form.component';
+import { SearchResultComponent } from './search-result/search-result.component';
 import { SearchResult } from './search-result/state/search-result.model';
 import { SearchResultQuery } from './search-result/state/search-result.query';
 import { SearchResultService } from './search-result/state/search-result.service';
 import { SearchProgress } from './search-result/state/search-result.store';
-import { SearchResultsComponent } from './search-results/search-results.component';
 import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
 
 @Component({
@@ -40,8 +42,8 @@ import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
     MatSidenavContent,
     MatCard,
     QueryFormComponent,
-    SearchResultsComponent,
     AsyncPipe,
+    SearchResultComponent,
   ],
 })
 export class AppComponent implements OnInit, OnDestroy {
@@ -58,6 +60,8 @@ export class AppComponent implements OnInit, OnDestroy {
   searchQuery$: Observable<string>;
 
   private destroy$ = new Subject<void>();
+  private readonly darkHighlightTheme = '/assets/themes/stackoverflow-dark.min.css';
+  private readonly lightHighlightTheme = '/assets/themes/stackoverflow-light.min.css';
 
   constructor(
     private configSrv: GitlabConfigService,
@@ -67,6 +71,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private searchResultsSrv: SearchResultService,
     private searchResultsQuery: SearchResultQuery,
     private dialog: MatDialog,
+    private hljsLoader: HighlightLoader,
+    private mediaMatcher: MediaMatcher,
     @Inject(DOCUMENT) private doc: Document,
   ) {
     this.gitlabItems$ = this.gitlabProjectsQuery.selectAll();
@@ -81,22 +87,32 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.themeMode$.pipe(takeUntil(this.destroy$)).subscribe(mode => {
-      switch (mode) {
-        case 'dark':
-          this.doc.body.classList.add('dark-theme');
-          this.doc.body.classList.remove('light-theme');
-          break;
-        case 'light':
-          this.doc.body.classList.remove('dark-theme');
-          this.doc.body.classList.add('light-theme');
-          break;
-        default:
-          this.doc.body.classList.remove('dark-theme');
-          this.doc.body.classList.remove('light-theme');
-          break;
-      }
-    });
+    const mql = this.mediaMatcher.matchMedia('(prefers-color-scheme: dark)');
+    const systemPreffersDark$ = fromEvent(mql, 'change').pipe(
+      map((ev: MediaQueryListEvent) => ev.matches),
+      startWith(mql.matches),
+    );
+    combineLatest({ mode: this.themeMode$, prefferDark: systemPreffersDark$ })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(({ mode, prefferDark }) => {
+        switch (mode) {
+          case 'dark':
+            this.doc.body.classList.add('dark-theme');
+            this.doc.body.classList.remove('light-theme');
+            this.hljsLoader.setTheme(this.darkHighlightTheme);
+            break;
+          case 'light':
+            this.doc.body.classList.remove('dark-theme');
+            this.doc.body.classList.add('light-theme');
+            this.hljsLoader.setTheme(this.lightHighlightTheme);
+            break;
+          default:
+            this.doc.body.classList.remove('dark-theme');
+            this.doc.body.classList.remove('light-theme');
+            this.hljsLoader.setTheme(prefferDark ? this.darkHighlightTheme : this.lightHighlightTheme);
+            break;
+        }
+      });
 
     this.configQuery
       .selectAll()
@@ -127,11 +143,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   openConfigSettings(): void {
-    this.dialog.open(GitlabConfigDialogComponent, {
-      minWidth: 548,
-      maxWidth: '80vw',
-      autoFocus: false,
-    });
+    this.dialog.open(GitlabConfigDialogComponent, { minWidth: 548, maxWidth: '80vw', autoFocus: false });
   }
 
   setThemeMode(mode: ThemeMode): void {

@@ -30,6 +30,12 @@
         ></app-query-form>
       </mat-card>
     </div>
-    <app-search-results [results]="searchResults$ | async" [query]="searchQuery$ | async"></app-search-results>
+
+    <mat-card class="search-results">
+      @let query = searchQuery$ | async;
+      @for (result of searchResults$ | async; track $index) {
+        <app-search-result [result]="result" [query]="query"></app-search-result>
+      }
+    </mat-card>
   </mat-sidenav-content>
 </mat-sidenav-container>
