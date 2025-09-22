@@ -4,9 +4,7 @@
     <mat-icon>add</mat-icon>
     Add GitLab
   </button>
-  @for (nothing of openedAddForms; track $index; let i = $index) {
-    <app-gitlab-config-item initEdit (cancelEdit)="removeForm(i)" />
-  }
+  <ng-container #addFormViewport></ng-container>
   @for (config of configs$ | async; track config) {
     <app-gitlab-config-item [gitlabConfig]="config" />
   }

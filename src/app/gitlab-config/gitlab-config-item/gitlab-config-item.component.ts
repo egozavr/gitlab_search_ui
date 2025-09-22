@@ -17,7 +17,7 @@ import { GitlabConfigService } from '../state/gitlab-config.service';
 export class GitlabConfigItemComponent implements OnInit {
   configForm: FormGroup;
   readonly initEdit = input(false, { transform: booleanAttribute });
-  editMode = signal(this.initEdit());
+  editMode = signal(false);
 
   readonly gitlabConfig = input<GitlabConfig>(undefined);
   readonly cancelEdit = output<void>();
@@ -30,6 +30,7 @@ export class GitlabConfigItemComponent implements OnInit {
       rateLimit: new FormControl(null, Validators.min(0)),
       token: new FormControl(),
     });
+    this.editMode.set(this.initEdit());
   }
 
   changeMode(toEdit: boolean): void {
@@ -46,7 +47,7 @@ export class GitlabConfigItemComponent implements OnInit {
     } else {
       this.configForm.reset();
       this.editMode.set(false);
-      this.cancelEdit.emit(void null);
+      this.cancelEdit.emit();
     }
   }
 
